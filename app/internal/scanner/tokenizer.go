@@ -50,6 +50,13 @@ func (t *Tokenizer) scanToken() {
 		t.addToken(MINUS, "-", nil)
 	case ';':
 		t.addToken(SEMICOLON, ";", nil)
+	case '=':
+		if t.match('=') {
+			t.advance()
+			t.addToken(EQUAL_EQUAL, "==", nil)
+		} else {
+			t.addToken(EQUAL, "=", nil)
+		}
 	default:
 		t.exitCode = 65
 		fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", 1, r)
@@ -68,4 +75,11 @@ func (t *Tokenizer) advance() rune {
 
 func (t *Tokenizer) addToken(tokenType TokenType, lexeme string, literal *string) {
 	t.tokens = append(t.tokens, NewToken(tokenType, &lexeme, literal))
+}
+
+func (t *Tokenizer) match(r rune) bool {
+	if t.isEnd() {
+		return false
+	}
+	return t.source[t.p] == r
 }

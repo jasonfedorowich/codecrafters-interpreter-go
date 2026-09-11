@@ -26,6 +26,8 @@ const (
 	PLUS        TokenType = "PLUS"
 	MINUS       TokenType = "MINUS"
 	SEMICOLON   TokenType = "SEMICOLON"
+	EQUAL       TokenType = "="
+	EQUAL_EQUAL TokenType = "=="
 	EOF         TokenType = "EOF"
 )
 

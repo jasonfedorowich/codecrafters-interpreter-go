@@ -37,4 +37,10 @@ func (ts *TokenizerSuite) TestTokenizer() {
 		_, errCode := tokenizer.Tokenize()
 		ts.Assert().Equal(65, errCode)
 	})
+	ts.Run("test with ==", func() {
+		tokenizer := NewTokenizer("===")
+		tokens, _ := tokenizer.Tokenize()
+		ts.Assert().Equal(EQUAL_EQUAL, tokens[0].Type)
+		ts.Assert().Equal(EQUAL, tokens[1].Type)
+	})
 }
