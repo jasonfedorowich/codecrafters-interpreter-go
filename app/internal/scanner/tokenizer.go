@@ -50,6 +50,13 @@ func (t *Tokenizer) scanToken() {
 		t.addToken(MINUS, "-", nil)
 	case ';':
 		t.addToken(SEMICOLON, ";", nil)
+	case '!':
+		if t.match('=') {
+			t.advance()
+			t.addToken(BANG_EQUAL, "!=", nil)
+		} else {
+			t.addToken(BANG, "!", nil)
+		}
 	case '=':
 		if t.match('=') {
 			t.advance()

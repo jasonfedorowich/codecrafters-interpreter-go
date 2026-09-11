@@ -28,6 +28,8 @@ const (
 	SEMICOLON   TokenType = "SEMICOLON"
 	EQUAL       TokenType = "EQUAL"
 	EQUAL_EQUAL TokenType = "EQUAL_EQUAL"
+	BANG        TokenType = "BANG"
+	BANG_EQUAL  TokenType = "BANG_EQUAL"
 	EOF         TokenType = "EOF"
 )
 
