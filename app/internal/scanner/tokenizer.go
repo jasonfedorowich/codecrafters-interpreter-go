@@ -1,5 +1,7 @@
 package scanner
 
+import "fmt"
+
 type Tokenizer struct {
 	p      int
 	tokens []*Token
@@ -44,6 +46,8 @@ func (t *Tokenizer) scanToken() {
 		t.addToken(MINUS, "-", nil)
 	case ';':
 		t.addToken(SEMICOLON, ";", nil)
+	default:
+		fmt.Println(fmt.Errorf("[line %d] Error: Unexpected character: %c", 1, r))
 	}
 }
 
