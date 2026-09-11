@@ -28,6 +28,22 @@ func (t *Tokenizer) scanToken() {
 		t.addToken(LEFT_PAREN, "(", nil)
 	case ')':
 		t.addToken(RIGHT_PAREN, ")", nil)
+	case '{':
+		t.addToken(OPEN_BRACE, "{", nil)
+	case '}':
+		t.addToken(CLOSE_BRACE, "}", nil)
+	case '*':
+		t.addToken(STAR, "*", nil)
+	case '+':
+		t.addToken(PLUS, "+", nil)
+	case ',':
+		t.addToken(COMMA, ",", nil)
+	case '.':
+		t.addToken(DOT, ".", nil)
+	case '-':
+		t.addToken(MINUS, "-", nil)
+	case ';':
+		t.addToken(SEMI_COLON, ";", nil)
 	}
 }
 
