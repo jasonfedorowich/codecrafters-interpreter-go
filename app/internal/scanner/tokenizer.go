@@ -43,7 +43,7 @@ func (t *Tokenizer) scanToken() {
 	case '-':
 		t.addToken(MINUS, "-", nil)
 	case ';':
-		t.addToken(SEMI_COLON, ";", nil)
+		t.addToken(SEMICOLON, ";", nil)
 	}
 }
 

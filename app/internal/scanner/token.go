@@ -20,12 +20,12 @@ const (
 	RIGHT_PAREN TokenType = "RIGHT_PAREN"
 	LEFT_BRACE  TokenType = "LEFT_BRACE"
 	RIGHT_BRACE TokenType = "RIGHT_BRACE"
-	COMMA       TokenType = ","
-	DOT         TokenType = "."
-	STAR        TokenType = "*"
-	PLUS        TokenType = "+"
-	MINUS       TokenType = "-"
-	SEMI_COLON  TokenType = ";"
+	COMMA       TokenType = "COMMA"
+	DOT         TokenType = "DOT"
+	STAR        TokenType = "STAR"
+	PLUS        TokenType = "PLUS"
+	MINUS       TokenType = "MINUS"
+	SEMICOLON   TokenType = "SEMICOLON"
 	EOF         TokenType = "EOF"
 )
 
