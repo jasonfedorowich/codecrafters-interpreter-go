@@ -29,7 +29,7 @@ challenge. This challenge will start from chapter 4,
 
 # Passing the first stage
 
-The entry point for your program is in `app/main.go`. Study and uncomment the
+The entry point for your program is in `app/cmd/main.go`. Study and uncomment the
 relevant code, and then run the command below to execute the tests on our
 servers:
 
@@ -45,6 +45,6 @@ Note: This section is for stages 2 and beyond.
 
 1. Ensure you have `go (1.27)` installed locally
 2. Run `./your_program.sh` to run your program, which is implemented in
-   `app/main.go`.
+   `app/cmd/main.go`.
 3. Run `codecrafters submit` to submit your solution to CodeCrafters. Test
    output will be streamed to your terminal.

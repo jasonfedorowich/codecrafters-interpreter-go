@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/codecrafters-io/interpreter-starter-go/app/internal/scanner"
 )
 
 func main() {
@@ -29,9 +31,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	if len(fileContents) > 0 {
-		panic("Scanner not implemented")
-	} else {
-		fmt.Println("EOF  null") // Placeholder, replace this line when implementing the scanner
+	tokenizer := scanner.NewTokenizer(string(fileContents))
+	tokens := tokenizer.Tokenize()
+	for _, token := range tokens{
+		fmt.Println(token)
 	}
 }
