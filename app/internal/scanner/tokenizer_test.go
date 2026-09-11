@@ -34,7 +34,7 @@ func (ts *TokenizerSuite) TestTokenizer() {
 	})
 	ts.Run("test with errors", func() {
 		tokenizer := NewTokenizer("<")
-		_, errs := tokenizer.Tokenize()
-		ts.Assert().Len(errs, 1)
+		_, errCode := tokenizer.Tokenize()
+		ts.Assert().Equal(65, errCode)
 	})
 }

@@ -31,9 +31,9 @@ func main() {
 	}
 
 	tokenizer := scanner.NewTokenizer(string(fileContents))
-	tokens, errs := tokenizer.Tokenize()
-	if len(errs) > 0 {
-		os.Exit(65)
+	tokens, errorCode := tokenizer.Tokenize()
+	if errorCode != 0 {
+		os.Exit(errorCode)
 	}
 	for _, token := range tokens {
 		fmt.Println(token)

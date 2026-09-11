@@ -1,12 +1,15 @@
 package scanner
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 type Tokenizer struct {
-	p      int
-	tokens []*Token
-	errs   []error
-	source []rune
+	p        int
+	tokens   []*Token
+	exitCode int
+	source   []rune
 }
 
 func NewTokenizer(source string) *Tokenizer {
@@ -15,13 +18,13 @@ func NewTokenizer(source string) *Tokenizer {
 	}
 }
 
-func (t *Tokenizer) Tokenize() ([]*Token, []error) {
+func (t *Tokenizer) Tokenize() ([]*Token, int) {
 	for !t.isEnd() {
 		t.scanToken()
 	}
 	t.addToken(EOF, "", nil)
 
-	return t.tokens, t.errs
+	return t.tokens, t.exitCode
 }
 
 func (t *Tokenizer) scanToken() {
@@ -48,9 +51,8 @@ func (t *Tokenizer) scanToken() {
 	case ';':
 		t.addToken(SEMICOLON, ";", nil)
 	default:
-		err := fmt.Errorf("[line %d] Error: Unexpected character: %c", 1, r)
-		t.errs = append(t.errs, err)
-		fmt.Println(err)
+		t.exitCode = 65
+		fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", 1, r)
 	}
 }
 
