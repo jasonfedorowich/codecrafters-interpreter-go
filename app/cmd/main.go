@@ -23,7 +23,6 @@ func main() {
 		os.Exit(1)
 	}
 
-
 	filename := os.Args[2]
 	fileContents, err := os.ReadFile(filename)
 	if err != nil {
@@ -32,8 +31,11 @@ func main() {
 	}
 
 	tokenizer := scanner.NewTokenizer(string(fileContents))
-	tokens := tokenizer.Tokenize()
-	for _, token := range tokens{
+	tokens, errs := tokenizer.Tokenize()
+	if len(errs) > 0 {
+		os.Exit(65)
+	}
+	for _, token := range tokens {
 		fmt.Println(token)
 	}
 }
