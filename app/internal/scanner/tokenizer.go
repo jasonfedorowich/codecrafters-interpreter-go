@@ -29,9 +29,9 @@ func (t *Tokenizer) scanToken() {
 	case ')':
 		t.addToken(RIGHT_PAREN, ")", nil)
 	case '{':
-		t.addToken(OPEN_BRACE, "{", nil)
+		t.addToken(LEFT_BRACE, "{", nil)
 	case '}':
-		t.addToken(CLOSE_BRACE, "}", nil)
+		t.addToken(RIGHT_BRACE, "}", nil)
 	case '*':
 		t.addToken(STAR, "*", nil)
 	case '+':

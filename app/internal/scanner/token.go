@@ -18,8 +18,8 @@ func (ns nullString) String() string {
 const (
 	LEFT_PAREN  TokenType = "LEFT_PAREN"
 	RIGHT_PAREN TokenType = "RIGHT_PAREN"
-	OPEN_BRACE  TokenType = "OPEN_BRACE"
-	CLOSE_BRACE TokenType = "CLOSE_BRACE"
+	LEFT_BRACE  TokenType = "LEFT_BRACE"
+	RIGHT_BRACE TokenType = "RIGHT_BRACE"
 	COMMA       TokenType = ","
 	DOT         TokenType = "."
 	STAR        TokenType = "*"
