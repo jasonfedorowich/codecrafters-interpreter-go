@@ -10,11 +10,13 @@ type Tokenizer struct {
 	tokens   []*Token
 	exitCode int
 	source   []rune
+	line     int
 }
 
 func NewTokenizer(source string) *Tokenizer {
 	return &Tokenizer{
 		source: []rune(source),
+		line:   1,
 	}
 }
 
@@ -52,8 +54,10 @@ func (t *Tokenizer) scanToken() {
 		t.addToken(SEMICOLON, ";", nil)
 	case '/':
 		t.handleComment()
-	case ' ', '\n', '\t', '\r':
+	case ' ', '\t', '\r':
 		return
+	case '\n':
+		t.line++
 	case '!':
 		t.addTokenMatch('=', BANG_EQUAL, BANG, "!=", "!")
 	case '=':
@@ -64,7 +68,7 @@ func (t *Tokenizer) scanToken() {
 		t.addTokenMatch('=', GREATER_EQUAL, GREATER, ">=", ">")
 	default:
 		t.exitCode = 65
-		fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", 1, r)
+		fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", t.line, r)
 	}
 }
 
@@ -88,7 +92,7 @@ func (t *Tokenizer) advance() rune {
 }
 
 func (t *Tokenizer) addToken(tokenType TokenType, lexeme string, literal *string) {
-	t.tokens = append(t.tokens, NewToken(tokenType, &lexeme, literal))
+	t.tokens = append(t.tokens, NewToken(tokenType, &lexeme, literal, t.line))
 }
 
 func (t *Tokenizer) match(r rune) bool {

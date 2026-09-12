@@ -42,9 +42,10 @@ type Token struct {
 	Type    TokenType
 	Lexeme  nullString
 	Literal nullString
+	Line    int
 }
 
-func NewToken(t TokenType, lexeme, literal *string) *Token {
+func NewToken(t TokenType, lexeme, literal *string, line int) *Token {
 	token := &Token{
 		Type: t,
 	}
