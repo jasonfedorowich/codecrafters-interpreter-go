@@ -43,4 +43,19 @@ func (ts *TokenizerSuite) TestTokenizer() {
 		ts.Assert().Equal(EQUAL_EQUAL, tokens[0].Type)
 		ts.Assert().Equal(EQUAL, tokens[1].Type)
 	})
+	ts.Run("test with comment no line", func() {
+		tokenizer := NewTokenizer("()// hello world")
+		tokens, _ := tokenizer.Tokenize()
+		ts.Assert().Len(tokens, 3)
+	})
+	ts.Run("test with slash", func() {
+		tokenizer := NewTokenizer("/()")
+		tokens, _ := tokenizer.Tokenize()
+		ts.Assert().Len(tokens, 4)
+	})
+	ts.Run("test with new line comments", func() {
+		tokenizer := NewTokenizer("/()///hello world\n(")
+		tokens, _ := tokenizer.Tokenize()
+		ts.Assert().Len(tokens, 5)
+	})
 }

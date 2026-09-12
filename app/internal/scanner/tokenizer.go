@@ -50,6 +50,10 @@ func (t *Tokenizer) scanToken() {
 		t.addToken(MINUS, "-", nil)
 	case ';':
 		t.addToken(SEMICOLON, ";", nil)
+	case '/':
+		t.handleComment()
+	case ' ', '\n', '\t', '\r':
+		return
 	case '!':
 		t.addTokenMatch('=', BANG_EQUAL, BANG, "!=", "!")
 	case '=':
@@ -92,4 +96,14 @@ func (t *Tokenizer) match(r rune) bool {
 		return false
 	}
 	return t.source[t.p] == r
+}
+
+func (t *Tokenizer) handleComment() {
+	if t.match('/') {
+		for !t.match('\n') && !t.isEnd() {
+			t.advance()
+		}
+	} else {
+		t.addToken(SLASH, "/", nil)
+	}
 }

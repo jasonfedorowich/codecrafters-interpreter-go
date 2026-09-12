@@ -34,6 +34,7 @@ const (
 	LESS_EQUAL    TokenType = "LESS_EQUAL"
 	GREATER       TokenType = "GREATER"
 	GREATER_EQUAL TokenType = "GREATER_EQUAL"
+	SLASH         TokenType = "SLASH"
 	EOF           TokenType = "EOF"
 )
 
