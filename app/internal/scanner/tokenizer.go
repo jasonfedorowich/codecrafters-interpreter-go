@@ -51,22 +51,25 @@ func (t *Tokenizer) scanToken() {
 	case ';':
 		t.addToken(SEMICOLON, ";", nil)
 	case '!':
-		if t.match('=') {
-			t.advance()
-			t.addToken(BANG_EQUAL, "!=", nil)
-		} else {
-			t.addToken(BANG, "!", nil)
-		}
+		t.addTokenMatch('=', BANG_EQUAL, BANG, "!=", "!")
 	case '=':
-		if t.match('=') {
-			t.advance()
-			t.addToken(EQUAL_EQUAL, "==", nil)
-		} else {
-			t.addToken(EQUAL, "=", nil)
-		}
+		t.addTokenMatch('=', EQUAL_EQUAL, EQUAL, "==", "=")
+	case '<':
+		t.addTokenMatch('=', LESS_EQUAL, LESS, "<=", "<")
+	case '>':
+		t.addTokenMatch('=', GREATER_EQUAL, GREATER, ">=", ">")
 	default:
 		t.exitCode = 65
 		fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", 1, r)
+	}
+}
+
+func (t *Tokenizer) addTokenMatch(match rune, altToken, token TokenType, altLexeme, lexeme string) {
+	if t.match(match) {
+		t.advance()
+		t.addToken(altToken, altLexeme, nil)
+	} else {
+		t.addToken(token, lexeme, nil)
 	}
 }
 

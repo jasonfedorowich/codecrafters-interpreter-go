@@ -33,7 +33,7 @@ func (ts *TokenizerSuite) TestTokenizer() {
 		ts.Assert().Equal(RIGHT_PAREN, tokens[2].Type)
 	})
 	ts.Run("test with errors", func() {
-		tokenizer := NewTokenizer("<")
+		tokenizer := NewTokenizer("@")
 		_, errCode := tokenizer.Tokenize()
 		ts.Assert().Equal(65, errCode)
 	})
