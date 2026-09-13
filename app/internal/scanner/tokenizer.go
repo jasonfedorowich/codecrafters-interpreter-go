@@ -106,7 +106,7 @@ func (t *Tokenizer) match(r rune) bool {
 
 func (t *Tokenizer) handleComment() {
 	if t.match('/') {
-		for !t.match('\n') && !t.isEnd() {
+		for !t.isEnd() && !t.match('\n') {
 			t.advance()
 		}
 	} else {
@@ -116,7 +116,7 @@ func (t *Tokenizer) handleComment() {
 
 func (t *Tokenizer) addString() {
 	start := t.p
-	for !t.match('"') && !t.isEnd() {
+	for !t.isEnd() && !t.match('"') {
 		t.advance()
 	}
 	if t.isEnd() || !t.match('"') {
@@ -124,6 +124,7 @@ func (t *Tokenizer) addString() {
 		return
 	}
 	str := string(t.source[start:t.p])
+	t.advance()
 	t.addToken(STRING, strconv.Quote(str), &str)
 }
 
