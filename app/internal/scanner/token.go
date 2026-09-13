@@ -21,6 +21,9 @@ func (ns null) String() string {
 		}
 		return fmt.Sprint(v.Elem().Interface())
 	}
+	if val, ok := ns.s.(float64); ok && val == float64(int64(val)) {
+		return fmt.Sprintf("%.1f", val)
+	}
 	return fmt.Sprint(ns.s)
 }
 
