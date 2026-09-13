@@ -61,11 +61,21 @@ func (ts *TokenizerSuite) TestTokenizer() {
 	ts.Run("test with string", func() {
 		tokenizer := NewTokenizer("\"hello world\"")
 		tokens, _ := tokenizer.Tokenize()
-		ts.Assert().Equal("hello world", *tokens[0].Literal.s)
+		ts.Assert().Equal("hello world", tokens[0].Literal.s)
 	})
 	ts.Run("test with invalid string", func() {
 		tokenizer := NewTokenizer("\"hello world")
 		_, err := tokenizer.Tokenize()
 		ts.Assert().Equal(65, err)
+	})
+	ts.Run("test with numbers", func() {
+		tokenizer := NewTokenizer("12345")
+		tokens, _ := tokenizer.Tokenize()
+		ts.Assert().Equal(float64(12345), tokens[0].Literal.s)
+	})
+	ts.Run("test number with period", func() {
+		tokenizer := NewTokenizer("12345.0901")
+		tokens, _ := tokenizer.Tokenize()
+		ts.Assert().Equal(12345.0901, tokens[0].Literal.s)
 	})
 }

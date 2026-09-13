@@ -1,18 +1,27 @@
 package scanner
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 type TokenType string
 
-type nullString struct {
-	s *string
+type null struct {
+	s any
 }
 
-func (ns nullString) String() string {
+func (ns null) String() string {
 	if ns.s == nil {
 		return "null"
 	}
-	return *ns.s
+	if v := reflect.ValueOf(ns.s); v.Kind() == reflect.Pointer {
+		if v.IsNil() {
+			return "null"
+		}
+		return fmt.Sprint(v.Elem().Interface())
+	}
+	return fmt.Sprint(ns.s)
 }
 
 const (
@@ -36,21 +45,23 @@ const (
 	GREATER_EQUAL TokenType = "GREATER_EQUAL"
 	SLASH         TokenType = "SLASH"
 	STRING        TokenType = "STRING"
+	NUMBER        TokenType = "NUMBER"
 	EOF           TokenType = "EOF"
 )
 
 type Token struct {
 	Type    TokenType
-	Lexeme  nullString
-	Literal nullString
+	Lexeme  string
+	Literal null
 	Line    int
 }
 
-func NewToken(t TokenType, lexeme, literal *string, line int) *Token {
+func NewToken(t TokenType, lexeme string, literal any, line int) *Token {
 	token := &Token{
-		Type: t,
+		Type:   t,
+		Line:   line,
+		Lexeme: lexeme,
 	}
-	token.Lexeme.s = lexeme
 	token.Literal.s = literal
 	return token
 }

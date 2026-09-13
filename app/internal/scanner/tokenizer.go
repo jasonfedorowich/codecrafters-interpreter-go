@@ -3,6 +3,8 @@ package scanner
 import (
 	"fmt"
 	"os"
+	"strconv"
+	"unicode"
 )
 
 type Tokenizer struct {
@@ -69,6 +71,10 @@ func (t *Tokenizer) scanToken() {
 	case '>':
 		t.addTokenMatch('=', GREATER_EQUAL, GREATER, ">=", ">")
 	default:
+		if unicode.IsDigit(r) {
+			t.addNumber()
+			return
+		}
 		t.error("[line %d] Error: Unexpected character: %c\n", t.line, r)
 	}
 }
@@ -92,8 +98,8 @@ func (t *Tokenizer) advance() rune {
 	return r
 }
 
-func (t *Tokenizer) addToken(tokenType TokenType, lexeme string, literal *string) {
-	t.tokens = append(t.tokens, NewToken(tokenType, &lexeme, literal, t.line))
+func (t *Tokenizer) addToken(tokenType TokenType, lexeme string, literal any) {
+	t.tokens = append(t.tokens, NewToken(tokenType, lexeme, literal, t.line))
 }
 
 func (t *Tokenizer) match(r rune) bool {
@@ -124,7 +130,31 @@ func (t *Tokenizer) addString() {
 	}
 	str := string(t.source[start:t.p])
 	t.advance()
-	t.addToken(STRING, fmt.Sprintf("\"%s\"", str), &str)
+	t.addToken(STRING, fmt.Sprintf("\"%s\"", str), str)
+}
+
+func (t *Tokenizer) addNumber() {
+	start := t.p - 1
+	for !t.isEnd() && t.isNumber() {
+		t.advance()
+	}
+	if !t.isEnd() && t.match('.') {
+		t.advance()
+		for !t.isEnd() && t.isNumber() {
+			t.advance()
+		}
+	}
+	str := string(t.source[start:t.p])
+	number, err := strconv.ParseFloat(str, 64)
+	if err != nil {
+		t.error("[line %d] Error: Invalid number.", t.line)
+		return
+	}
+	t.addToken(NUMBER, str, number)
+}
+
+func (t *Tokenizer) isNumber() bool {
+	return unicode.IsDigit(t.source[t.p])
 }
 
 func (t *Tokenizer) error(format string, a ...any) {
