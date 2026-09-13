@@ -124,7 +124,7 @@ func (t *Tokenizer) addString() {
 	}
 	str := string(t.source[start:t.p])
 	t.advance()
-	t.addToken(STRING, fmt.Sprintf("%q", str), &str)
+	t.addToken(STRING, fmt.Sprintf("\"%s\"", str), &str)
 }
 
 func (t *Tokenizer) error(format string, a ...any) {
