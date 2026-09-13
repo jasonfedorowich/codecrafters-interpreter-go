@@ -58,4 +58,14 @@ func (ts *TokenizerSuite) TestTokenizer() {
 		tokens, _ := tokenizer.Tokenize()
 		ts.Assert().Len(tokens, 5)
 	})
+	ts.Run("test with string", func() {
+		tokenizer := NewTokenizer("\"hello world\"")
+		tokens, _ := tokenizer.Tokenize()
+		ts.Assert().Equal("hello world", *tokens[0].Literal.s)
+	})
+	ts.Run("test with invalid string", func() {
+		tokenizer := NewTokenizer("\"hello world")
+		_, err := tokenizer.Tokenize()
+		ts.Assert().Equal(65, err)
+	})
 }

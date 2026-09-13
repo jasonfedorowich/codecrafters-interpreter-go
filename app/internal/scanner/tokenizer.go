@@ -3,6 +3,7 @@ package scanner
 import (
 	"fmt"
 	"os"
+	"strconv"
 )
 
 type Tokenizer struct {
@@ -52,6 +53,8 @@ func (t *Tokenizer) scanToken() {
 		t.addToken(MINUS, "-", nil)
 	case ';':
 		t.addToken(SEMICOLON, ";", nil)
+	case '"':
+		t.addString()
 	case '/':
 		t.handleComment()
 	case ' ', '\t', '\r':
@@ -67,8 +70,7 @@ func (t *Tokenizer) scanToken() {
 	case '>':
 		t.addTokenMatch('=', GREATER_EQUAL, GREATER, ">=", ">")
 	default:
-		t.exitCode = 65
-		fmt.Fprintf(os.Stderr, "[line %d] Error: Unexpected character: %c\n", t.line, r)
+		t.error("[line %d] Error: Unexpected character: %c\n", t.line, r)
 	}
 }
 
@@ -110,4 +112,22 @@ func (t *Tokenizer) handleComment() {
 	} else {
 		t.addToken(SLASH, "/", nil)
 	}
+}
+
+func (t *Tokenizer) addString() {
+	start := t.p
+	for !t.match('"') && !t.isEnd() {
+		t.advance()
+	}
+	if t.isEnd() || !t.match('"') {
+		t.error("[line %d] Error: Unterminated string.", t.line)
+		return
+	}
+	str := string(t.source[start:t.p])
+	t.addToken(STRING, strconv.Quote(str), &str)
+}
+
+func (t *Tokenizer) error(format string, a ...any) {
+	t.exitCode = 65
+	fmt.Fprintf(os.Stderr, format, a...)
 }
