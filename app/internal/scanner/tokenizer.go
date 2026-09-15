@@ -176,5 +176,5 @@ func (t *Tokenizer) error(format string, a ...any) {
 }
 
 func (t *Tokenizer) isIdentifier() bool {
-	return unicode.IsLetter(t.source[t.p]) || t.source[t.p] == '_'
+	return unicode.IsLetter(t.source[t.p]) || t.source[t.p] == '_' || unicode.IsNumber(t.source[t.p])
 }
