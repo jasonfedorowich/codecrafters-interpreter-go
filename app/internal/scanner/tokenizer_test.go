@@ -78,4 +78,14 @@ func (ts *TokenizerSuite) TestTokenizer() {
 		tokens, _ := tokenizer.Tokenize()
 		ts.Assert().Equal(12345.0901, tokens[0].Literal.s)
 	})
+	ts.Run("test identifier with underscore", func() {
+		tokenizer := NewTokenizer("_hello_world")
+		tokens, _ := tokenizer.Tokenize()
+		ts.Assert().Equal("_hello_world", tokens[0].Lexeme)
+	})
+	ts.Run("test identifier", func() {
+		tokenizer := NewTokenizer("helloworld")
+		tokens, _ := tokenizer.Tokenize()
+		ts.Assert().Equal("helloworld", tokens[0].Lexeme)
+	})
 }

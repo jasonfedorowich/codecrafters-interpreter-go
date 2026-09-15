@@ -75,6 +75,10 @@ func (t *Tokenizer) scanToken() {
 			t.addNumber()
 			return
 		}
+		if unicode.IsLetter(r) || r == '_' {
+			t.addIdentifier()
+			return
+		}
 		t.error("[line %d] Error: Unexpected character: %c\n", t.line, r)
 	}
 }
@@ -153,6 +157,15 @@ func (t *Tokenizer) addNumber() {
 	t.addToken(NUMBER, str, number)
 }
 
+func (t *Tokenizer) addIdentifier() {
+	start := t.p - 1
+	for !t.isEnd() && t.isIdentifier() {
+		t.advance()
+	}
+	str := string(t.source[start:t.p])
+	t.addToken(IDENTIFIER, str, nil)
+}
+
 func (t *Tokenizer) isNumber() bool {
 	return unicode.IsDigit(t.source[t.p])
 }
@@ -160,4 +173,8 @@ func (t *Tokenizer) isNumber() bool {
 func (t *Tokenizer) error(format string, a ...any) {
 	t.exitCode = 65
 	fmt.Fprintf(os.Stderr, format, a...)
+}
+
+func (t *Tokenizer) isIdentifier() bool {
+	return unicode.IsLetter(t.source[t.p]) || t.source[t.p] == '_'
 }
