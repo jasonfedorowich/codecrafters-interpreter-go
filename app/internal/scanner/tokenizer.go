@@ -163,7 +163,13 @@ func (t *Tokenizer) addIdentifier() {
 		t.advance()
 	}
 	str := string(t.source[start:t.p])
-	t.addToken(IDENTIFIER, str, nil)
+	token, ok := reserved[str]
+	if !ok{
+		t.addToken(IDENTIFIER, str, nil)
+		return
+	}
+	t.addToken(token, str, nil)
+
 }
 
 func (t *Tokenizer) isNumber() bool {

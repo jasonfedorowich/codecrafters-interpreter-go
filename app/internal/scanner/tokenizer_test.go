@@ -88,4 +88,10 @@ func (ts *TokenizerSuite) TestTokenizer() {
 		tokens, _ := tokenizer.Tokenize()
 		ts.Assert().Equal("helloworld", tokens[0].Lexeme)
 	})
+	ts.Run("test keywords", func() {
+		tokenizer := NewTokenizer("class")
+		tokens, _ := tokenizer.Tokenize()
+		ts.Assert().Equal("class", tokens[0].Lexeme)
+		ts.Assert().Equal(CLASS, tokens[0].Type)
+	})
 }
