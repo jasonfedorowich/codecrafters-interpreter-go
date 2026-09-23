@@ -71,4 +71,13 @@ func (ps *PrintTestSuite) TestPrint() {
 		ps.Equal("(/ (* 16.0 38.0) 58.0)", s)
 		ps.NoError(err)
 	})
+	ps.Run("test with comparison", func() {
+		tokenizer := scanner.NewTokenizer("83 < 99 < 115")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens)
+		expr, err := parser.Parse()
+		s := expr.Accept(ps.astPrinter)
+		ps.Equal("(< (< 83.0 99.0) 115.0)", s)
+		ps.NoError(err)
+	})
 }
