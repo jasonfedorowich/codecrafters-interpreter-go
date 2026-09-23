@@ -62,4 +62,13 @@ func (ps *PrintTestSuite) TestPrint() {
 		ps.Equal("(! true)", s)
 		ps.NoError(err)
 	})
+	ps.Run("test with binary expression", func() {
+		tokenizer := scanner.NewTokenizer("16 * 38 / 58")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens)
+		expr, err := parser.Parse()
+		s := expr.Accept(ps.astPrinter)
+		ps.Equal("(/ (* 16.0 38.0) 58.0)", s)
+		ps.NoError(err)
+	})
 }

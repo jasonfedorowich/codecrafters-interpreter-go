@@ -14,7 +14,7 @@ func NewAstPrinter() *AstPrinter {
 }
 
 func (ap *AstPrinter) VisitBinaryExpr(expr *parse.BinaryExpr) any {
-	return nil
+	return fmt.Sprintf("(%s %s %s)", expr.Operator.Lexeme, expr.Left.Accept(ap), expr.Right.Accept(ap))
 }
 
 func (ap *AstPrinter) VisitLiteralExpr(expr *parse.LiteralExpr) any {

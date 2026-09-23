@@ -72,4 +72,12 @@ func (ps *ParseSuite) TestParser() {
 		ps.Assert().IsType(&UnaryExpr{}, expr)
 		ps.NoError(err)
 	})
+	ps.Run("test with binary expression", func() {
+		tokenizer := scanner.NewTokenizer("1+2")
+		tokens, _ := tokenizer.Tokenize()
+		parser := NewParser(tokens)
+		expr, err := parser.Parse()
+		ps.Assert().IsType(&BinaryExpr{}, expr)
+		ps.NoError(err)
+	})
 }

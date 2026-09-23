@@ -23,7 +23,51 @@ func (p *Parser) Parse() (Expr, error) {
 }
 
 func (p *Parser) expression() (Expr, error) {
-	return p.unary()
+	return p.term()
+}
+
+func (p *Parser) term() (Expr, error) {
+	expr, err := p.factor()
+	if err != nil{
+		return nil, err
+	}
+
+	for p.match(scanner.PLUS, scanner.MINUS){
+		op := p.prev()
+		right, err := p.factor()
+		if err != nil{
+			return nil, err
+		}
+		expr = &BinaryExpr{
+			Left:     expr,
+			Right:    right,
+			Operator: op,
+		}
+	}
+
+	return expr, nil
+}
+
+func (p *Parser) factor() (Expr, error){
+	expr, err := p.unary()
+	if err != nil{
+		return nil, err
+	}
+
+	for p.match(scanner.STAR, scanner.SLASH){
+		op := p.prev()
+		right, err := p.unary()
+		if err != nil{
+			return nil, err
+		}
+		expr = &BinaryExpr{
+			Left:     expr,
+			Right:    right,
+			Operator: op,
+		}
+	}
+
+	return expr, nil
 }
 
 func (p *Parser) unary() (Expr, error) {
