@@ -24,7 +24,16 @@ func (le *LiteralExpr) Accept(visitor Visitor) any {
 	return visitor.VisitLiteralExpr(le)
 }
 
+type GroupingExpr struct {
+	E Expr
+}
+
+func (ge *GroupingExpr) Accept(visitor Visitor) any {
+	return visitor.VisitGroupExpr(ge)
+}
+
 type Visitor interface {
 	VisitBinaryExpr(expr *BinaryExpr) any
 	VisitLiteralExpr(expr *LiteralExpr) any
+	VisitGroupExpr(expr *GroupingExpr) any
 }

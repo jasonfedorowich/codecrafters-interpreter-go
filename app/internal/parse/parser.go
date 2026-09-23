@@ -48,6 +48,19 @@ func (p *Parser) primary() (Expr, error) {
 			Obj: p.prev().Literal,
 		}, nil
 	}
+
+	if p.match(scanner.LEFT_PAREN) {
+		expr, err := p.expression()
+		if err != nil {
+			return nil, err
+		}
+		if !p.match(scanner.RIGHT_PAREN) {
+			return nil, fmt.Errorf("unexpected token, %s", p.prev().Literal.String())
+		}
+		return &GroupingExpr{
+			E: expr,
+		}, nil
+	}
 	return nil, fmt.Errorf("unexpected token, %s", p.prev().Literal.String())
 }
 

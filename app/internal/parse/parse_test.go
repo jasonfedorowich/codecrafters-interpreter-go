@@ -56,4 +56,12 @@ func (ps *ParseSuite) TestParser() {
 		ps.Assert().IsType(&LiteralExpr{}, expr)
 		ps.NoError(err)
 	})
+	ps.Run("test with parenthesized expression", func() {
+		tokenizer := scanner.NewTokenizer("(true)")
+		tokens, _ := tokenizer.Tokenize()
+		parser := NewParser(tokens)
+		expr, err := parser.Parse()
+		ps.Assert().IsType(&GroupingExpr{}, expr)
+		ps.NoError(err)
+	})
 }

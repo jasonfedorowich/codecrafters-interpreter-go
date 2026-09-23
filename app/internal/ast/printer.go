@@ -23,3 +23,7 @@ func (ap *AstPrinter) VisitLiteralExpr(expr *parse.LiteralExpr) any {
 	}
 	return fmt.Sprint(expr.Obj)
 }
+
+func (ap *AstPrinter) VisitGroupExpr(expr *parse.GroupingExpr) any {
+	return fmt.Sprintf("(%s)", expr.E.Accept(ap))
+}

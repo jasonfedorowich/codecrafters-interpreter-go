@@ -44,4 +44,13 @@ func (ps *PrintTestSuite) TestPrint() {
 		ps.Equal("nil", s)
 		ps.NoError(err)
 	})
+	ps.Run("test with parenthesized expression", func() {
+		tokenizer := scanner.NewTokenizer("(true)")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens)
+		expr, err := parser.Parse()
+		s := expr.Accept(ps.astPrinter)
+		ps.Equal("(true)", s)
+		ps.NoError(err)
+	})
 }
