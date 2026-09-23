@@ -8,23 +8,23 @@ import (
 type TokenType string
 
 type null struct {
-	s any
+	S any
 }
 
 func (ns null) String() string {
-	if ns.s == nil {
+	if ns.S == nil {
 		return "null"
 	}
-	if v := reflect.ValueOf(ns.s); v.Kind() == reflect.Pointer {
+	if v := reflect.ValueOf(ns.S); v.Kind() == reflect.Pointer {
 		if v.IsNil() {
 			return "null"
 		}
 		return fmt.Sprint(v.Elem().Interface())
 	}
-	if val, ok := ns.s.(float64); ok && val == float64(int64(val)) {
+	if val, ok := ns.S.(float64); ok && val == float64(int64(val)) {
 		return fmt.Sprintf("%.1f", val)
 	}
-	return fmt.Sprint(ns.s)
+	return fmt.Sprint(ns.S)
 }
 
 const (
@@ -66,7 +66,7 @@ func NewToken(t TokenType, lexeme string, literal any, line int) *Token {
 		Line:   line,
 		Lexeme: lexeme,
 	}
-	token.Literal.s = literal
+	token.Literal.S = literal
 	return token
 }
 
