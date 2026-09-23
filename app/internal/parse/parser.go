@@ -26,6 +26,21 @@ func (p *Parser) expression() (Expr, error) {
 	return p.primary()
 }
 
+func (p *Parser) unary() (Expr, error) {
+	if p.match(scanner.BANG, scanner.MINUS) {
+		pr := p.prev()
+		right, err := p.unary()
+		if err != nil {
+			return nil, err
+		}
+		return &UnaryExpr{
+			Right:    right,
+			Operator: pr,
+		}, nil
+	}
+	return p.primary()
+}
+
 func (p *Parser) primary() (Expr, error) {
 	if p.match(scanner.NIL) {
 		return &LiteralExpr{

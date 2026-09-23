@@ -32,8 +32,18 @@ func (ge *GroupingExpr) Accept(visitor Visitor) any {
 	return visitor.VisitGroupExpr(ge)
 }
 
+type UnaryExpr struct {
+	Right    Expr
+	Operator *scanner.Token
+}
+
+func (ue *UnaryExpr) Accept(visitor Visitor) any {
+	return visitor.VisitUnaryExpr(ue)
+}
+
 type Visitor interface {
 	VisitBinaryExpr(expr *BinaryExpr) any
 	VisitLiteralExpr(expr *LiteralExpr) any
 	VisitGroupExpr(expr *GroupingExpr) any
+	VisitUnaryExpr(expr *UnaryExpr) any
 }
