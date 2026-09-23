@@ -25,5 +25,5 @@ func (ap *AstPrinter) VisitLiteralExpr(expr *parse.LiteralExpr) any {
 }
 
 func (ap *AstPrinter) VisitGroupExpr(expr *parse.GroupingExpr) any {
-	return fmt.Sprintf("(%s)", expr.E.Accept(ap))
+	return fmt.Sprintf("(group %s)", expr.E.Accept(ap))
 }

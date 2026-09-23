@@ -50,7 +50,7 @@ func (ps *PrintTestSuite) TestPrint() {
 		parser := parse.NewParser(tokens)
 		expr, err := parser.Parse()
 		s := expr.Accept(ps.astPrinter)
-		ps.Equal("(true)", s)
+		ps.Equal("(group true)", s)
 		ps.NoError(err)
 	})
 }
