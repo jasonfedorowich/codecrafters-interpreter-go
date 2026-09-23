@@ -27,10 +27,7 @@ func main() {
 		parseFile(os.Args[2])
 	}
 
-	if command != "tokenize" {
-		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
-		os.Exit(1)
-	}
+	os.Exit(0)
 }
 
 func parseFile(fileName string) {
