@@ -64,4 +64,12 @@ func (ps *ParseSuite) TestParser() {
 		ps.Assert().IsType(&GroupingExpr{}, expr)
 		ps.NoError(err)
 	})
+	ps.Run("test with unary expression", func() {
+		tokenizer := scanner.NewTokenizer("!true")
+		tokens, _ := tokenizer.Tokenize()
+		parser := NewParser(tokens)
+		expr, err := parser.Parse()
+		ps.Assert().IsType(&UnaryExpr{}, expr)
+		ps.NoError(err)
+	})
 }

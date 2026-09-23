@@ -23,7 +23,7 @@ func (p *Parser) Parse() (Expr, error) {
 }
 
 func (p *Parser) expression() (Expr, error) {
-	return p.primary()
+	return p.unary()
 }
 
 func (p *Parser) unary() (Expr, error) {
