@@ -163,8 +163,6 @@ func (p *Parser) primary() (Expr, error) {
 	return nil, fmt.Errorf("unexpected token, %s", p.prev().Literal.String())
 }
 
-func
-
 func (p *Parser) prev() *scanner.Token {
 	return p.tokens[p.p-1]
 }
