@@ -33,7 +33,7 @@ func (ps *PrintTestSuite) TestPrint() {
 		expr, err := parser.Parse()
 		s := expr.Accept(ps.astPrinter)
 		ps.Equal("true", s)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with nil", func() {
 		tokenizer := scanner.NewTokenizer("nil")
@@ -42,7 +42,7 @@ func (ps *PrintTestSuite) TestPrint() {
 		expr, err := parser.Parse()
 		s := expr.Accept(ps.astPrinter)
 		ps.Equal("nil", s)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with parenthesized expression", func() {
 		tokenizer := scanner.NewTokenizer("(true)")
@@ -51,7 +51,7 @@ func (ps *PrintTestSuite) TestPrint() {
 		expr, err := parser.Parse()
 		s := expr.Accept(ps.astPrinter)
 		ps.Equal("(group true)", s)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with unary expression", func() {
 		tokenizer := scanner.NewTokenizer("!true")
@@ -60,7 +60,7 @@ func (ps *PrintTestSuite) TestPrint() {
 		expr, err := parser.Parse()
 		s := expr.Accept(ps.astPrinter)
 		ps.Equal("(! true)", s)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with binary expression", func() {
 		tokenizer := scanner.NewTokenizer("16 * 38 / 58")
@@ -69,7 +69,7 @@ func (ps *PrintTestSuite) TestPrint() {
 		expr, err := parser.Parse()
 		s := expr.Accept(ps.astPrinter)
 		ps.Equal("(/ (* 16.0 38.0) 58.0)", s)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with comparison", func() {
 		tokenizer := scanner.NewTokenizer("83 < 99 < 115")
@@ -78,7 +78,7 @@ func (ps *PrintTestSuite) TestPrint() {
 		expr, err := parser.Parse()
 		s := expr.Accept(ps.astPrinter)
 		ps.Equal("(< (< 83.0 99.0) 115.0)", s)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with equality", func() {
 		tokenizer := scanner.NewTokenizer("1==2")
@@ -87,6 +87,6 @@ func (ps *PrintTestSuite) TestPrint() {
 		expr, err := parser.Parse()
 		s := expr.Accept(ps.astPrinter)
 		ps.Equal("(== 1.0 2.0)", s)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 }

@@ -30,7 +30,7 @@ func (ps *ParseSuite) TestParser() {
 		parser := NewParser(tokens)
 		expr, err := parser.Parse()
 		ps.Assert().IsType(&LiteralExpr{}, expr)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with nil", func() {
 		tokenizer := scanner.NewTokenizer("nil")
@@ -38,7 +38,7 @@ func (ps *ParseSuite) TestParser() {
 		parser := NewParser(tokens)
 		expr, err := parser.Parse()
 		ps.Assert().IsType(&LiteralExpr{}, expr)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with string", func() {
 		tokenizer := scanner.NewTokenizer("\"hello world\"")
@@ -46,7 +46,7 @@ func (ps *ParseSuite) TestParser() {
 		parser := NewParser(tokens)
 		expr, err := parser.Parse()
 		ps.Assert().IsType(&LiteralExpr{}, expr)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with number", func() {
 		tokenizer := scanner.NewTokenizer("42.37")
@@ -54,7 +54,7 @@ func (ps *ParseSuite) TestParser() {
 		parser := NewParser(tokens)
 		expr, err := parser.Parse()
 		ps.Assert().IsType(&LiteralExpr{}, expr)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with parenthesized expression", func() {
 		tokenizer := scanner.NewTokenizer("(true)")
@@ -62,7 +62,7 @@ func (ps *ParseSuite) TestParser() {
 		parser := NewParser(tokens)
 		expr, err := parser.Parse()
 		ps.Assert().IsType(&GroupingExpr{}, expr)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with unary expression", func() {
 		tokenizer := scanner.NewTokenizer("!true")
@@ -70,7 +70,7 @@ func (ps *ParseSuite) TestParser() {
 		parser := NewParser(tokens)
 		expr, err := parser.Parse()
 		ps.Assert().IsType(&UnaryExpr{}, expr)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with binary expression", func() {
 		tokenizer := scanner.NewTokenizer("1+2")
@@ -78,7 +78,7 @@ func (ps *ParseSuite) TestParser() {
 		parser := NewParser(tokens)
 		expr, err := parser.Parse()
 		ps.Assert().IsType(&BinaryExpr{}, expr)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with comparison", func() {
 		tokenizer := scanner.NewTokenizer("1<2")
@@ -86,7 +86,7 @@ func (ps *ParseSuite) TestParser() {
 		parser := NewParser(tokens)
 		expr, err := parser.Parse()
 		ps.Assert().IsType(&BinaryExpr{}, expr)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 	ps.Run("test with equality", func() {
 		tokenizer := scanner.NewTokenizer("1==2")
@@ -94,6 +94,6 @@ func (ps *ParseSuite) TestParser() {
 		parser := NewParser(tokens)
 		expr, err := parser.Parse()
 		ps.Assert().IsType(&BinaryExpr{}, expr)
-		ps.NoError(err)
+		ps.Equal(0, err)
 	})
 }

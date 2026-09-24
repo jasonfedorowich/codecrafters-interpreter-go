@@ -2,23 +2,25 @@ package scanner
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"unicode"
+
+	"github.com/codecrafters-io/interpreter-starter-go/app/internal/error_code"
 )
 
 type Tokenizer struct {
-	p        int
-	tokens   []*Token
-	exitCode int
-	source   []rune
-	line     int
+	p      int
+	tokens []*Token
+	source []rune
+	line   int
+	eh     *error_code.ErrorHandler
 }
 
 func NewTokenizer(source string) *Tokenizer {
 	return &Tokenizer{
 		source: []rune(source),
 		line:   1,
+		eh:     &error_code.ErrorHandler{},
 	}
 }
 
@@ -28,7 +30,7 @@ func (t *Tokenizer) Tokenize() ([]*Token, int) {
 	}
 	t.addToken(EOF, "", nil)
 
-	return t.tokens, t.exitCode
+	return t.tokens, t.eh.ErrorCode
 }
 
 func (t *Tokenizer) scanToken() {
@@ -164,7 +166,7 @@ func (t *Tokenizer) addIdentifier() {
 	}
 	str := string(t.source[start:t.p])
 	token, ok := reserved[str]
-	if !ok{
+	if !ok {
 		t.addToken(IDENTIFIER, str, nil)
 		return
 	}
@@ -177,8 +179,7 @@ func (t *Tokenizer) isNumber() bool {
 }
 
 func (t *Tokenizer) error(format string, a ...any) {
-	t.exitCode = 65
-	fmt.Fprintf(os.Stderr, format, a...)
+	t.eh.Error(65, format, a...)
 }
 
 func (t *Tokenizer) isIdentifier() bool {

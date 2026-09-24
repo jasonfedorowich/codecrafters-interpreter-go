@@ -37,9 +37,8 @@ func parseFile(fileName string) {
 	}
 	parser := parse.NewParser(tokens)
 	expr, err := parser.Parse()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error parsing file: %v\n", err)
-		os.Exit(1)
+	if err != 0 {
+		os.Exit(err)
 	}
 	astPrinter := ast.NewAstPrinter()
 	fmt.Println(expr.Accept(astPrinter))

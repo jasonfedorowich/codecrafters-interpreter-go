@@ -1,41 +1,42 @@
 package parse
 
 import (
-	"fmt"
-
+	"github.com/codecrafters-io/interpreter-starter-go/app/internal/error_code"
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/scanner"
 )
 
 type Parser struct {
 	tokens []*scanner.Token
 	p      int
+	eh     *error_code.ErrorHandler
 }
 
 func NewParser(tokens []*scanner.Token) *Parser {
 	return &Parser{
 		tokens: tokens,
 		p:      0,
+		eh:     &error_code.ErrorHandler{},
 	}
 }
 
-func (p *Parser) Parse() (Expr, error) {
-	return p.expression()
+func (p *Parser) Parse() (Expr, int) {
+	return p.expression(), p.eh.ErrorCode
 }
 
-func (p *Parser) expression() (Expr, error) {
+func (p *Parser) expression() Expr {
 	return p.equality()
 }
 
-func (p *Parser) equality() (Expr, error) {
-	expr, err := p.comparison()
-	if err != nil {
-		return nil, err
+func (p *Parser) equality() Expr {
+	expr := p.comparison()
+	if p.eh.InError() {
+		return nil
 	}
 	for p.match(scanner.BANG_EQUAL, scanner.EQUAL_EQUAL) {
 		op := p.prev()
-		right, err := p.comparison()
-		if err != nil {
-			return nil, err
+		right := p.comparison()
+		if p.eh.InError() {
+			return nil
 		}
 		expr = &BinaryExpr{
 			Left:     expr,
@@ -43,19 +44,19 @@ func (p *Parser) equality() (Expr, error) {
 			Operator: op,
 		}
 	}
-	return expr, nil
+	return expr
 }
 
-func (p *Parser) comparison() (Expr, error) {
-	expr, err := p.term()
-	if err != nil {
-		return nil, err
+func (p *Parser) comparison() Expr {
+	expr := p.term()
+	if p.eh.InError() {
+		return nil
 	}
 	for p.match(scanner.GREATER, scanner.GREATER_EQUAL, scanner.LESS, scanner.LESS_EQUAL) {
 		op := p.prev()
-		right, err := p.term()
-		if err != nil {
-			return nil, err
+		right := p.term()
+		if p.eh.InError() {
+			return nil
 		}
 		expr = &BinaryExpr{
 			Left:     expr,
@@ -63,20 +64,20 @@ func (p *Parser) comparison() (Expr, error) {
 			Operator: op,
 		}
 	}
-	return expr, nil
+	return expr
 }
 
-func (p *Parser) term() (Expr, error) {
-	expr, err := p.factor()
-	if err != nil {
-		return nil, err
+func (p *Parser) term() Expr {
+	expr := p.factor()
+	if p.eh.InError() {
+		return nil
 	}
 
 	for p.match(scanner.PLUS, scanner.MINUS) {
 		op := p.prev()
-		right, err := p.factor()
-		if err != nil {
-			return nil, err
+		right := p.factor()
+		if p.eh.InError() {
+			return nil
 		}
 		expr = &BinaryExpr{
 			Left:     expr,
@@ -85,20 +86,20 @@ func (p *Parser) term() (Expr, error) {
 		}
 	}
 
-	return expr, nil
+	return expr
 }
 
-func (p *Parser) factor() (Expr, error) {
-	expr, err := p.unary()
-	if err != nil {
-		return nil, err
+func (p *Parser) factor() Expr {
+	expr := p.unary()
+	if p.eh.InError() {
+		return nil
 	}
 
 	for p.match(scanner.STAR, scanner.SLASH) {
 		op := p.prev()
-		right, err := p.unary()
-		if err != nil {
-			return nil, err
+		right := p.unary()
+		if p.eh.InError() {
+			return nil
 		}
 		expr = &BinaryExpr{
 			Left:     expr,
@@ -107,60 +108,62 @@ func (p *Parser) factor() (Expr, error) {
 		}
 	}
 
-	return expr, nil
+	return expr
 }
 
-func (p *Parser) unary() (Expr, error) {
+func (p *Parser) unary() Expr {
 	if p.match(scanner.BANG, scanner.MINUS) {
 		pr := p.prev()
-		right, err := p.unary()
-		if err != nil {
-			return nil, err
+		right := p.unary()
+		if p.eh.InError() {
+			return nil
 		}
 		return &UnaryExpr{
 			Right:    right,
 			Operator: pr,
-		}, nil
+		}
 	}
 	return p.primary()
 }
 
-func (p *Parser) primary() (Expr, error) {
+func (p *Parser) primary() Expr {
 	if p.match(scanner.NIL) {
 		return &LiteralExpr{
 			Obj: nil,
-		}, nil
+		}
 	}
 	if p.match(scanner.TRUE) {
 		return &LiteralExpr{
 			Obj: true,
-		}, nil
+		}
 	}
 
 	if p.match(scanner.FALSE) {
 		return &LiteralExpr{
 			Obj: false,
-		}, nil
+		}
 	}
 	if p.match(scanner.STRING, scanner.NUMBER) {
 		return &LiteralExpr{
 			Obj: p.prev().Literal,
-		}, nil
+		}
 	}
 
 	if p.match(scanner.LEFT_PAREN) {
-		expr, err := p.expression()
-		if err != nil {
-			return nil, err
+		expr := p.expression()
+		if p.eh.InError() {
+			return nil
 		}
 		if !p.match(scanner.RIGHT_PAREN) {
-			return nil, fmt.Errorf("[line %d] Error at ')': Expect expression", p.peek().Line)
+			p.eh.Error(65, "[line %d] Error at ')': Expect expression", p.peek().Line)
+			return nil
 		}
 		return &GroupingExpr{
 			E: expr,
-		}, nil
+		}
 	}
-	return nil, fmt.Errorf("unexpected token, %s", p.prev().Literal.String())
+	p.eh.Error(65, "[line %d] Unexpected token", p.peek().Line)
+	return nil
 }
 
 func (p *Parser) prev() *scanner.Token {
