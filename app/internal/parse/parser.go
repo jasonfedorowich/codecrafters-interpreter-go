@@ -154,7 +154,7 @@ func (p *Parser) primary() (Expr, error) {
 			return nil, err
 		}
 		if !p.match(scanner.RIGHT_PAREN) {
-			return nil, fmt.Errorf("unexpected token, %s", p.prev().Literal.String())
+			return nil, fmt.Errorf("[line %d] Error at ')': Expect expression", p.peek().Line)
 		}
 		return &GroupingExpr{
 			E: expr,
@@ -162,6 +162,8 @@ func (p *Parser) primary() (Expr, error) {
 	}
 	return nil, fmt.Errorf("unexpected token, %s", p.prev().Literal.String())
 }
+
+func
 
 func (p *Parser) prev() *scanner.Token {
 	return p.tokens[p.p-1]
