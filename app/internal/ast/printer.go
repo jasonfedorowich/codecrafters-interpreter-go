@@ -21,8 +21,8 @@ func (ap *AstPrinter) VisitLiteralExpr(expr *parse.LiteralExpr) any {
 	if expr.Obj == nil {
 		return "nil"
 	}
-	if val, ok := expr.Obj.(float64); ok {
-		return fmt.Sprintf("%.2f", val)
+	if val, ok := expr.Obj.(float64); ok && val == float64(int64(val)) {
+		return fmt.Sprintf("%.1f", val)
 	}
 	return fmt.Sprint(expr.Obj)
 }
