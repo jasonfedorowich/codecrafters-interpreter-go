@@ -23,6 +23,9 @@ func (i *Interpreter) Interpret(expr parse.Expr) any {
 	if res == nil {
 		return "nil"
 	}
+	if val, ok := res.(float64); ok && val == float64(int64(val)) {
+		return fmt.Sprintf("%.1f", val)
+	}
 	return fmt.Sprint(res)
 }
 
