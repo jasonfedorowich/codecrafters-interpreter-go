@@ -43,11 +43,11 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		is.Equal("hello world!", res)
 	})
 	is.Run("evaluate double", func() {
-		tokenizer := scanner.NewTokenizer("10.12")
+		tokenizer := scanner.NewTokenizer("10.0")
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens)
 		expr, _ := parser.Parse()
 		res := is.interpreter.Interpret(expr)
-		is.Equal("10.12", res)
+		is.Equal("10", res)
 	})
 }

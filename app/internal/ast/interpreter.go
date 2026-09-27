@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/error_code"
@@ -24,12 +25,11 @@ func (i *Interpreter) Interpret(expr parse.Expr) any {
 	if res == nil {
 		return "nil"
 	}
-	if val, ok := res.(float64); ok && val == float64(int64(val)) {
-		s := fmt.Sprintf("%.1f", val)
-		if strings.HasPrefix(s, ".0") {
-			return strings.TrimLeft(s, ".")
+	if val, ok := res.(float64); ok {
+		s := strconv.FormatFloat(val, 'f', -1, 64)
+		if strings.HasSuffix(s, ".0") {
+			return strings.TrimSuffix(s, ".0")
 		}
-		return s
 	}
 	return fmt.Sprint(res)
 }

@@ -145,7 +145,7 @@ func (p *Parser) primary() Expr {
 	}
 	if p.match(scanner.STRING, scanner.NUMBER) {
 		return &LiteralExpr{
-			Obj: p.prev().Literal,
+			Obj: p.prev().Literal.S,
 		}
 	}
 

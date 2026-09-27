@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/parse"
 )
@@ -20,6 +21,13 @@ func (ap *AstPrinter) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 func (ap *AstPrinter) VisitLiteralExpr(expr *parse.LiteralExpr) any {
 	if expr.Obj == nil {
 		return "nil"
+	}
+	if val, ok := expr.Obj.(float64); ok {
+		s := fmt.Sprintf("%.1f", val)
+		if strings.HasPrefix(s, ".0") {
+			return strings.TrimLeft(s, ".")
+		}
+		return s
 	}
 	return fmt.Sprint(expr.Obj)
 }

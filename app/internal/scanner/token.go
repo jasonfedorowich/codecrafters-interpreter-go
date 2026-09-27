@@ -7,11 +7,11 @@ import (
 
 type TokenType string
 
-type null struct {
+type NullString struct {
 	S any
 }
 
-func (ns null) String() string {
+func (ns NullString) String() string {
 	if ns.S == nil {
 		return "null"
 	}
@@ -56,7 +56,7 @@ const (
 type Token struct {
 	Type    TokenType
 	Lexeme  string
-	Literal null
+	Literal NullString
 	Line    int
 }
 
