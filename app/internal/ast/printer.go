@@ -22,7 +22,7 @@ func (ap *AstPrinter) VisitLiteralExpr(expr *parse.LiteralExpr) any {
 		return "nil"
 	}
 	if val, ok := expr.Obj.(float64); ok {
-		return fmt.Sprintf("%.1f", val)
+		return fmt.Sprintf("%.2f", val)
 	}
 	return fmt.Sprint(expr.Obj)
 }
