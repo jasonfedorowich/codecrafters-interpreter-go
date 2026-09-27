@@ -8,6 +8,7 @@ import (
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/error_code"
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/parse"
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/scanner"
+	"github.com/codecrafters-io/interpreter-starter-go/app/internal/types"
 )
 
 type Interpreter struct {
@@ -58,6 +59,51 @@ func (i *Interpreter) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 	return nil
 }
 
+func (i *Interpreter) VisitLiteralExpr(expr *parse.LiteralExpr) any {
+	return expr.Obj
+}
+
+func (i *Interpreter) VisitGroupExpr(expr *parse.GroupingExpr) any {
+	return i.evaluate(expr.E)
+}
+
+func (i *Interpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
+	switch expr.Operator.Type {
+	case scanner.MINUS:
+		if ok, v := types.IsNumber(i.evaluate(expr.Right)); ok {
+			return -v
+		}
+		i.eh.Error(65, "Operand must be a number")
+		return nil
+	case scanner.BANG:
+		if ok, v := types.IsBoolean(i.evaluate(expr.Right)); ok {
+			return !v
+		}
+		i.eh.Error(65, "Operand must be a boolean")
+		return nil
+	default:
+		i.eh.Error(65, "Unknown unary operator")
+		return nil
+	}
+}
+
+func (i *Interpreter) evaluate(expr parse.Expr) any {
+	return expr.Accept(i)
+}
+
+func (i *Interpreter) parseNumberTypes(numbers ...any) []float64 {
+	var nums []float64
+	for _, n := range numbers {
+		if number, ok := n.(float64); ok {
+			nums = append(nums, number)
+		} else {
+			i.eh.Error(65, "Operands must be numbers")
+			return nil
+		}
+	}
+	return nums
+}
+
 func (i *Interpreter) add(left any, right any) any {
 	if i.eh.InError() {
 		return nil
@@ -69,54 +115,43 @@ func (i *Interpreter) add(left any, right any) any {
 		i.eh.Error(65, "Operator + can only be used on two strings")
 		return nil
 	}
-	l, r := i.parseNumberTypes(left, right)
-	return l + r
-}
-
-func (i *Interpreter) VisitLiteralExpr(expr *parse.LiteralExpr) any {
-	return expr.Obj
-}
-
-func (i *Interpreter) VisitGroupExpr(expr *parse.GroupingExpr) any {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i *Interpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i *Interpreter) evaluate(expr parse.Expr) any {
-	return expr.Accept(i)
-}
-
-func (i *Interpreter) parseNumberTypes(left any, right any) (float64, float64) {
-	if leftNum, ok := left.(float64); ok {
-		if rightNum, ok := right.(float64); ok {
-			return leftNum, rightNum
-		}
+	arr := i.parseNumberTypes(left, right)
+	if arr != nil {
+		return arr[0] + arr[1]
 	}
-	i.eh.Error(65, "Operands must be numbers")
-	return 0, 0
+	return nil
 }
+
 func (i *Interpreter) sub(left any, right any) any {
-	l, r := i.parseNumberTypes(left, right)
-	return l - r
+	arr := i.parseNumberTypes(left, right)
+	if arr != nil {
+		return arr[0] - arr[1]
+	}
+	return nil
 }
 
 func (i *Interpreter) mul(left any, right any) any {
-	l, r := i.parseNumberTypes(left, right)
-	return l * r
+	arr := i.parseNumberTypes(left, right)
+	if arr != nil {
+		return arr[0] * arr[1]
+	}
+	return nil
 }
 
 func (i *Interpreter) div(left any, right any) any {
-	l, r := i.parseNumberTypes(left, right)
-	return l / r
+	arr := i.parseNumberTypes(left, right)
+	if arr != nil {
+		return arr[0] / arr[1]
+	}
+	return nil
 }
 
 func (i *Interpreter) logical(tokenType scanner.TokenType, left any, right any) any {
-	l, r := i.parseNumberTypes(left, right)
+	arr := i.parseNumberTypes(left, right)
+	if arr == nil {
+		return nil
+	}
+	l, r := arr[0], arr[1]
 	switch tokenType {
 	case scanner.GREATER:
 		return l > r
