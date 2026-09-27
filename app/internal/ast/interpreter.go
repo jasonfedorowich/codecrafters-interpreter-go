@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/error_code"
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/parse"
@@ -24,7 +25,11 @@ func (i *Interpreter) Interpret(expr parse.Expr) any {
 		return "nil"
 	}
 	if val, ok := res.(float64); ok && val == float64(int64(val)) {
-		return fmt.Sprintf("%f", val)
+		s := fmt.Sprintf("%.1f", val)
+		if strings.HasPrefix(s, ".0") {
+			return strings.TrimLeft(s, ".")
+		}
+		return s
 	}
 	return fmt.Sprint(res)
 }
