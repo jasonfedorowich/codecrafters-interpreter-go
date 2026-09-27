@@ -25,12 +25,26 @@ func main() {
 		printTokens(os.Args[2])
 	case "parse":
 		parseFile(os.Args[2])
+	case "evaluate":
+		evaluateFile(os.Args[2])
 	}
 
 	os.Exit(0)
 }
 
+func evaluateFile(fileName string) {
+	expr := parseExpr(fileName)
+	interpreter := ast.NewInterpreter()
+	fmt.Println(interpreter.Interpret(expr))
+}
+
 func parseFile(fileName string) {
+	expr := parseExpr(fileName)
+	astPrinter := ast.NewAstPrinter()
+	fmt.Println(expr.Accept(astPrinter))
+}
+
+func parseExpr(fileName string) parse.Expr {
 	tokens, errorCode := tokenize(fileName)
 	if errorCode != 0 {
 		os.Exit(errorCode)
@@ -40,8 +54,7 @@ func parseFile(fileName string) {
 	if err != 0 {
 		os.Exit(err)
 	}
-	astPrinter := ast.NewAstPrinter()
-	fmt.Println(expr.Accept(astPrinter))
+	return expr
 }
 
 func printTokens(fileName string) {

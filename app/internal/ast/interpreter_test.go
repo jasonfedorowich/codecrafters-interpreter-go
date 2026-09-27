@@ -1,0 +1,53 @@
+package ast
+
+import (
+	"testing"
+
+	"github.com/codecrafters-io/interpreter-starter-go/app/internal/parse"
+	"github.com/codecrafters-io/interpreter-starter-go/app/internal/scanner"
+	"github.com/stretchr/testify/suite"
+)
+
+type InterpreterTestSuite struct {
+	suite.Suite
+	interpreter *Interpreter
+}
+
+func (is *InterpreterTestSuite) SetupTest() {
+	is.interpreter = NewInterpreter()
+}
+
+func (is *InterpreterTestSuite) TearDownTest() {
+
+}
+
+func TestInterpreterSuite(t *testing.T) {
+	suite.Run(t, new(InterpreterTestSuite))
+}
+
+func (is *InterpreterTestSuite) TestInterpreter() {
+	is.Run("evaluate literal", func() {
+		tokenizer := scanner.NewTokenizer("true")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens)
+		expr, _ := parser.Parse()
+		res := is.interpreter.Interpret(expr)
+		is.Equal("true", res)
+	})
+	is.Run("evaluate string", func() {
+		tokenizer := scanner.NewTokenizer("\"hello world!\"")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens)
+		expr, _ := parser.Parse()
+		res := is.interpreter.Interpret(expr)
+		is.Equal("hello world!", res)
+	})
+	is.Run("evaluate double", func() {
+		tokenizer := scanner.NewTokenizer("10.12")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens)
+		expr, _ := parser.Parse()
+		res := is.interpreter.Interpret(expr)
+		is.Equal("10.12", res)
+	})
+}
