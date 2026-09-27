@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/parse"
@@ -23,11 +24,10 @@ func (ap *AstPrinter) VisitLiteralExpr(expr *parse.LiteralExpr) any {
 		return "nil"
 	}
 	if val, ok := expr.Obj.(float64); ok {
-		s := fmt.Sprintf("%.1f", val)
-		if strings.HasPrefix(s, ".0") {
-			return strings.TrimLeft(s, ".")
+		s := strconv.FormatFloat(val, 'f', -1, 64)
+		if strings.HasSuffix(s, ".0") {
+			return strings.TrimSuffix(s, ".0")
 		}
-		return s
 	}
 	return fmt.Sprint(expr.Obj)
 }
