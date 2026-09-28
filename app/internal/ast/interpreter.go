@@ -168,25 +168,32 @@ func (i *Interpreter) logical(tokenType scanner.TokenType, left any, right any) 
 }
 
 func (i *Interpreter) equal(tokenType scanner.TokenType, left any, right any) any {
-	numbers := types.ParseNumbers(left, right)
-	if numbers != nil {
-		switch tokenType {
-		case scanner.EQUAL_EQUAL:
-			return numbers[0] == numbers[1]
-		case scanner.BANG_EQUAL:
-			return numbers[0] != numbers[1]
-		}
+	//numbers := types.ParseNumbers(left, right)
+	//if numbers != nil {
+	//	switch tokenType {
+	//	case scanner.EQUAL_EQUAL:
+	//		return numbers[0] == numbers[1]
+	//	case scanner.BANG_EQUAL:
+	//		return numbers[0] != numbers[1]
+	//	}
+	//}
+	//strs := types.ParseStrings(left, right)
+	//if strs != nil {
+	//	switch tokenType {
+	//	case scanner.EQUAL_EQUAL:
+	//		return strs[0] == strs[1]
+	//	case scanner.BANG_EQUAL:
+	//		return strs[0] != strs[1]
+	//	}
+	//}
+	//
+	//i.eh.Error(65, "Expected number or string type")
+	//return nil
+	switch tokenType {
+	case scanner.EQUAL_EQUAL:
+		return left == right
+	case scanner.BANG_EQUAL:
+		return left != right
 	}
-	strs := types.ParseStrings(left, right)
-	if strs != nil {
-		switch tokenType {
-		case scanner.EQUAL_EQUAL:
-			return strs[0] == strs[1]
-		case scanner.BANG_EQUAL:
-			return strs[0] != strs[1]
-		}
-	}
-
-	i.eh.Error(65, "Expected number or string type")
 	return nil
 }
