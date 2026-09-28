@@ -52,7 +52,7 @@ func (i *Interpreter) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 		return i.mul(left, right)
 	case scanner.SLASH:
 		return i.div(left, right)
-	case scanner.GREATER, scanner.GREATER_EQUAL, scanner.LESS, scanner.LESS_EQUAL:
+	case scanner.GREATER, scanner.GREATER_EQUAL, scanner.LESS, scanner.LESS_EQUAL, scanner.EQUAL_EQUAL, scanner.BANG_EQUAL:
 		return i.logical(expr.Operator.Type, left, right)
 
 	}
@@ -161,6 +161,10 @@ func (i *Interpreter) logical(tokenType scanner.TokenType, left any, right any) 
 		return l < r
 	case scanner.LESS_EQUAL:
 		return l <= r
+	case scanner.EQUAL_EQUAL:
+		return l == r
+	case scanner.BANG_EQUAL:
+		return l != r
 	}
 	return nil
 }
