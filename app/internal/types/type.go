@@ -16,3 +16,34 @@ func IsNumber(val any) (bool, float64) {
 	}
 	return false, 0
 }
+
+func IsString(val any) (bool, string) {
+	if v, ok := val.(string); ok {
+		return true, v
+	}
+	return false, ""
+}
+
+func ParseStrings(strs ...any) []string {
+	var s []string
+	for _, str := range strs {
+		if ok, v := IsString(str); ok {
+			s = append(s, v)
+		} else {
+			return nil
+		}
+	}
+	return s
+}
+
+func ParseNumbers(numbers ...any) []float64 {
+	var nums []float64
+	for _, n := range numbers {
+		if ok, v := IsNumber(n); ok {
+			nums = append(nums, v)
+		} else {
+			return nil
+		}
+	}
+	return nums
+}

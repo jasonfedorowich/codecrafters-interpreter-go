@@ -74,4 +74,20 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		res := is.interpreter.Interpret(expr)
 		is.Equal("true", res)
 	})
+	is.Run("strings equality", func() {
+		tokenizer := scanner.NewTokenizer("\"hello\" == \"hello\"")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens)
+		expr, _ := parser.Parse()
+		res := is.interpreter.Interpret(expr)
+		is.Equal("true", res)
+	})
+	is.Run("strings inequality", func() {
+		tokenizer := scanner.NewTokenizer("\"baz\" != \"world\"")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens)
+		expr, _ := parser.Parse()
+		res := is.interpreter.Interpret(expr)
+		is.Equal("true", res)
+	})
 }

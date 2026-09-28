@@ -52,8 +52,10 @@ func (i *Interpreter) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 		return i.mul(left, right)
 	case scanner.SLASH:
 		return i.div(left, right)
-	case scanner.GREATER, scanner.GREATER_EQUAL, scanner.LESS, scanner.LESS_EQUAL, scanner.EQUAL_EQUAL, scanner.BANG_EQUAL:
+	case scanner.GREATER, scanner.GREATER_EQUAL, scanner.LESS, scanner.LESS_EQUAL:
 		return i.logical(expr.Operator.Type, left, right)
+	case scanner.EQUAL_EQUAL, scanner.BANG_EQUAL:
+		return i.equal(expr.Operator.Type, left, right)
 
 	}
 	return nil
@@ -161,10 +163,30 @@ func (i *Interpreter) logical(tokenType scanner.TokenType, left any, right any) 
 		return l < r
 	case scanner.LESS_EQUAL:
 		return l <= r
-	case scanner.EQUAL_EQUAL:
-		return l == r
-	case scanner.BANG_EQUAL:
-		return l != r
 	}
+	return nil
+}
+
+func (i *Interpreter) equal(tokenType scanner.TokenType, left any, right any) any {
+	numbers := types.ParseNumbers(left, right)
+	if numbers != nil {
+		switch tokenType {
+		case scanner.EQUAL_EQUAL:
+			return numbers[0] == numbers[1]
+		case scanner.BANG_EQUAL:
+			return numbers[0] != numbers[1]
+		}
+	}
+	strs := types.ParseStrings(left, right)
+	if strs != nil {
+		switch tokenType {
+		case scanner.EQUAL_EQUAL:
+			return strs[0] == strs[1]
+		case scanner.BANG_EQUAL:
+			return strs[0] != strs[1]
+		}
+	}
+
+	i.eh.Error(65, "Expected number or string type")
 	return nil
 }
