@@ -1,6 +1,9 @@
 package types
 
 func IsBoolean(val any) (bool, bool) {
+	if val == nil {
+		return true, false
+	}
 	if v, ok := val.(bool); ok {
 		return true, v
 	}

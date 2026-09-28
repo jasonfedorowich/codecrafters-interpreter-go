@@ -72,6 +72,6 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		parser := parse.NewParser(tokens)
 		expr, _ := parser.Parse()
 		res := is.interpreter.Interpret(expr)
-		is.Equal("nil", res)
+		is.Equal("true", res)
 	})
 }

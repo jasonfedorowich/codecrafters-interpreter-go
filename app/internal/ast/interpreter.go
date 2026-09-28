@@ -76,11 +76,7 @@ func (i *Interpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
 		i.eh.Error(65, "Operand must be a number")
 		return nil
 	case scanner.BANG:
-		r := i.evaluate(expr.Right)
-		if r == nil {
-			return nil
-		}
-		if ok, v := types.IsBoolean(r); ok {
+		if ok, v := types.IsBoolean(i.evaluate(expr.Right)); ok {
 			return !v
 		}
 		i.eh.Error(65, "Operand must be a boolean")
