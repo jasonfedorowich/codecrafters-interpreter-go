@@ -66,4 +66,12 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		res := is.interpreter.Interpret(expr)
 		is.Equal("-10", res)
 	})
+	is.Run("evaluate unary nil", func() {
+		tokenizer := scanner.NewTokenizer("!nil")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens)
+		expr, _ := parser.Parse()
+		res := is.interpreter.Interpret(expr)
+		is.Equal("nil", res)
+	})
 }
