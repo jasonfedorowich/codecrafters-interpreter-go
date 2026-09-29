@@ -78,11 +78,7 @@ func (i *Interpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
 		i.eh.Error(70, "Operand must be a number")
 		return nil
 	case scanner.BANG:
-		if ok, v := types.IsBoolean(i.evaluate(expr.Right)); ok {
-			return !v
-		}
-		i.eh.Error(70, "Operand must be a boolean")
-		return nil
+		return !i.isBool(i.evaluate(expr.Right))
 	default:
 		i.eh.Error(70, "Unknown unary operator")
 		return nil
@@ -196,4 +192,14 @@ func (i *Interpreter) equal(tokenType scanner.TokenType, left any, right any) an
 		return left != right
 	}
 	return nil
+}
+
+func (i *Interpreter) isBool(e any) bool {
+	if e == nil {
+		return false
+	}
+	if v, ok := types.IsBoolean(e); ok {
+		return v
+	}
+	return true
 }
