@@ -21,18 +21,18 @@ func NewInterpreter() *Interpreter {
 	}
 }
 
-func (i *Interpreter) Interpret(expr parse.Expr) any {
+func (i *Interpreter) Interpret(expr parse.Expr) (any, int) {
 	res := i.evaluate(expr)
 	if res == nil {
-		return "nil"
+		return "nil", i.eh.ErrorCode
 	}
 	if val, ok := res.(float64); ok {
 		s := strconv.FormatFloat(val, 'f', -1, 64)
 		if strings.HasSuffix(s, ".0") {
-			return strings.TrimSuffix(s, ".0")
+			return strings.TrimSuffix(s, ".0"), i.eh.ErrorCode
 		}
 	}
-	return fmt.Sprint(res)
+	return fmt.Sprint(res), i.eh.ErrorCode
 }
 
 func (i *Interpreter) InError() bool {
@@ -75,16 +75,16 @@ func (i *Interpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
 		if ok, v := types.IsNumber(i.evaluate(expr.Right)); ok {
 			return -v
 		}
-		i.eh.Error(65, "Operand must be a number")
+		i.eh.Error(70, "Operand must be a number")
 		return nil
 	case scanner.BANG:
 		if ok, v := types.IsBoolean(i.evaluate(expr.Right)); ok {
 			return !v
 		}
-		i.eh.Error(65, "Operand must be a boolean")
+		i.eh.Error(70, "Operand must be a boolean")
 		return nil
 	default:
-		i.eh.Error(65, "Unknown unary operator")
+		i.eh.Error(70, "Unknown unary operator")
 		return nil
 	}
 }
@@ -99,7 +99,7 @@ func (i *Interpreter) parseNumberTypes(numbers ...any) []float64 {
 		if number, ok := n.(float64); ok {
 			nums = append(nums, number)
 		} else {
-			i.eh.Error(65, "Operands must be numbers")
+			i.eh.Error(70, "Operands must be numbers")
 			return nil
 		}
 	}
@@ -114,7 +114,7 @@ func (i *Interpreter) add(left any, right any) any {
 		if strRight, ok := right.(string); ok {
 			return strLeft + strRight
 		}
-		i.eh.Error(65, "Operator + can only be used on two strings")
+		i.eh.Error(70, "Operator + can only be used on two strings")
 		return nil
 	}
 	arr := i.parseNumberTypes(left, right)

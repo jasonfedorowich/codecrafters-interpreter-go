@@ -35,7 +35,11 @@ func main() {
 func evaluateFile(fileName string) {
 	expr := parseExpr(fileName)
 	interpreter := ast.NewInterpreter()
-	fmt.Println(interpreter.Interpret(expr))
+	res, err := interpreter.Interpret(expr)
+	if err != 0 {
+		os.Exit(err)
+	}
+	fmt.Println(res)
 }
 
 func parseFile(fileName string) {
