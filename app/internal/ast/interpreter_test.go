@@ -96,7 +96,16 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		parser := parse.NewParser(tokens)
 		expr, _ := parser.Parse()
 		res, err := is.interpreter.Interpret(expr)
-		is.Equal("false", res)
+		is.Equal("true", res)
+		is.Equal(0, err)
+	})
+	is.Run("unary !false", func() {
+		tokenizer := scanner.NewTokenizer("!false")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens)
+		expr, _ := parser.Parse()
+		res, err := is.interpreter.Interpret(expr)
+		is.Equal("true", res)
 		is.Equal(0, err)
 	})
 }
