@@ -46,4 +46,6 @@ type Visitor interface {
 	VisitLiteralExpr(expr *LiteralExpr) any
 	VisitGroupExpr(expr *GroupingExpr) any
 	VisitUnaryExpr(expr *UnaryExpr) any
+	VisitExpressionStatement(expr *ExpressionStatement) any
+	VisitPrintStatement(expr *PrintStatement) any
 }

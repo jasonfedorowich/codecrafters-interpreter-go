@@ -18,13 +18,7 @@ func (ap *AstPrinter) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 }
 
 func (ap *AstPrinter) VisitLiteralExpr(expr *parse.LiteralExpr) any {
-	if expr.Obj == nil {
-		return "nil"
-	}
-	if val, ok := expr.Obj.(float64); ok && val == float64(int64(val)) {
-		return fmt.Sprintf("%.1f", val)
-	}
-	return fmt.Sprint(expr.Obj)
+	return toString(expr.Obj)
 }
 
 func (ap *AstPrinter) VisitGroupExpr(expr *parse.GroupingExpr) any {
@@ -33,4 +27,25 @@ func (ap *AstPrinter) VisitGroupExpr(expr *parse.GroupingExpr) any {
 
 func (ap *AstPrinter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
 	return fmt.Sprintf("(%s %s)", expr.Operator.Lexeme, expr.Right.Accept(ap))
+}
+
+func (ap *AstPrinter) VisitPrintStatement(expr *parse.PrintStatement) any {
+	r := expr.E.Accept(ap)
+	s := toString(r)
+	fmt.Println(s)
+	return nil
+}
+
+func (ap *AstPrinter) VisitExpressionStatement(expr *parse.ExpressionStatement) any {
+	return expr.E.Accept(ap)
+}
+
+func toString(expr any) string {
+	if expr == nil {
+		return "nil"
+	}
+	if val, ok := expr.(float64); ok && val == float64(int64(val)) {
+		return fmt.Sprintf("%.1f", val)
+	}
+	return fmt.Sprint(expr)
 }

@@ -11,17 +11,17 @@ import (
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/types"
 )
 
-type Interpreter struct {
+type ExprInterpreter struct {
 	eh *error_code.ErrorHandler
 }
 
-func NewInterpreter() *Interpreter {
-	return &Interpreter{
+func NewExprInterpreter() *ExprInterpreter {
+	return &ExprInterpreter{
 		eh: &error_code.ErrorHandler{},
 	}
 }
 
-func (i *Interpreter) Interpret(expr parse.Expr) (any, int) {
+func (i *ExprInterpreter) Interpret(expr parse.Expr) (any, int) {
 	res := i.evaluate(expr)
 	if res == nil {
 		return "nil", i.eh.ErrorCode
@@ -35,11 +35,11 @@ func (i *Interpreter) Interpret(expr parse.Expr) (any, int) {
 	return fmt.Sprint(res), i.eh.ErrorCode
 }
 
-func (i *Interpreter) InError() bool {
+func (i *ExprInterpreter) InError() bool {
 	return i.eh.InError()
 }
 
-func (i *Interpreter) VisitBinaryExpr(expr *parse.BinaryExpr) any {
+func (i *ExprInterpreter) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 	left := i.evaluate(expr.Left)
 	right := i.evaluate(expr.Right)
 
@@ -61,15 +61,15 @@ func (i *Interpreter) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 	return nil
 }
 
-func (i *Interpreter) VisitLiteralExpr(expr *parse.LiteralExpr) any {
+func (i *ExprInterpreter) VisitLiteralExpr(expr *parse.LiteralExpr) any {
 	return expr.Obj
 }
 
-func (i *Interpreter) VisitGroupExpr(expr *parse.GroupingExpr) any {
+func (i *ExprInterpreter) VisitGroupExpr(expr *parse.GroupingExpr) any {
 	return i.evaluate(expr.E)
 }
 
-func (i *Interpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
+func (i *ExprInterpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
 	switch expr.Operator.Type {
 	case scanner.MINUS:
 		if ok, v := types.IsNumber(i.evaluate(expr.Right)); ok {
@@ -85,11 +85,19 @@ func (i *Interpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
 	}
 }
 
-func (i *Interpreter) evaluate(expr parse.Expr) any {
+func (i *ExprInterpreter) VisitExpressionStatement(expr *parse.ExpressionStatement) any {
+	return i.evaluate(expr.E)
+}
+
+func (i *ExprInterpreter) VisitPrintStatement(expr *parse.PrintStatement) any {
+	return nil
+}
+
+func (i *ExprInterpreter) evaluate(expr parse.Expr) any {
 	return expr.Accept(i)
 }
 
-func (i *Interpreter) parseNumberTypes(numbers ...any) []float64 {
+func (i *ExprInterpreter) parseNumberTypes(numbers ...any) []float64 {
 	var nums []float64
 	for _, n := range numbers {
 		if number, ok := n.(float64); ok {
@@ -102,7 +110,7 @@ func (i *Interpreter) parseNumberTypes(numbers ...any) []float64 {
 	return nums
 }
 
-func (i *Interpreter) add(left any, right any) any {
+func (i *ExprInterpreter) add(left any, right any) any {
 	if i.eh.InError() {
 		return nil
 	}
@@ -120,7 +128,7 @@ func (i *Interpreter) add(left any, right any) any {
 	return nil
 }
 
-func (i *Interpreter) sub(left any, right any) any {
+func (i *ExprInterpreter) sub(left any, right any) any {
 	arr := i.parseNumberTypes(left, right)
 	if arr != nil {
 		return arr[0] - arr[1]
@@ -128,7 +136,7 @@ func (i *Interpreter) sub(left any, right any) any {
 	return nil
 }
 
-func (i *Interpreter) mul(left any, right any) any {
+func (i *ExprInterpreter) mul(left any, right any) any {
 	arr := i.parseNumberTypes(left, right)
 	if arr != nil {
 		return arr[0] * arr[1]
@@ -136,7 +144,7 @@ func (i *Interpreter) mul(left any, right any) any {
 	return nil
 }
 
-func (i *Interpreter) div(left any, right any) any {
+func (i *ExprInterpreter) div(left any, right any) any {
 	arr := i.parseNumberTypes(left, right)
 	if arr != nil {
 		return arr[0] / arr[1]
@@ -144,7 +152,7 @@ func (i *Interpreter) div(left any, right any) any {
 	return nil
 }
 
-func (i *Interpreter) logical(tokenType scanner.TokenType, left any, right any) any {
+func (i *ExprInterpreter) logical(tokenType scanner.TokenType, left any, right any) any {
 	arr := i.parseNumberTypes(left, right)
 	if arr == nil {
 		return nil
@@ -163,7 +171,7 @@ func (i *Interpreter) logical(tokenType scanner.TokenType, left any, right any) 
 	return nil
 }
 
-func (i *Interpreter) equal(tokenType scanner.TokenType, left any, right any) any {
+func (i *ExprInterpreter) equal(tokenType scanner.TokenType, left any, right any) any {
 	//numbers := types.ParseNumbers(left, right)
 	//if numbers != nil {
 	//	switch tokenType {
@@ -194,7 +202,7 @@ func (i *Interpreter) equal(tokenType scanner.TokenType, left any, right any) an
 	return nil
 }
 
-func (i *Interpreter) isBool(e any) bool {
+func (i *ExprInterpreter) isBool(e any) bool {
 	if e == nil {
 		return false
 	}

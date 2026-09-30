@@ -6,21 +6,56 @@ import (
 )
 
 type Parser struct {
-	tokens []*scanner.Token
-	p      int
-	eh     *error_code.ErrorHandler
+	tokens    []*scanner.Token
+	p         int
+	eh        *error_code.ErrorHandler
+	parseExpr bool
 }
 
-func NewParser(tokens []*scanner.Token) *Parser {
+func NewParser(tokens []*scanner.Token, parseExpr bool) *Parser {
 	return &Parser{
-		tokens: tokens,
-		p:      0,
-		eh:     &error_code.ErrorHandler{},
+		tokens:    tokens,
+		p:         0,
+		eh:        &error_code.ErrorHandler{},
+		parseExpr: parseExpr,
 	}
 }
 
-func (p *Parser) Parse() (Expr, int) {
-	return p.expression(), p.eh.ErrorCode
+func (p *Parser) Parse() ([]Statement, int) {
+	var statements []Statement
+	for !p.isAtEnd() {
+		statements = append(statements, p.statement())
+	}
+	return statements, p.eh.ErrorCode
+}
+
+func (p *Parser) statement() Statement {
+	if p.match(scanner.PRINT) {
+		return p.printStatement()
+	}
+	return p.expressionStatement()
+}
+
+func (p *Parser) expressionStatement() Statement {
+	e := p.expression()
+	if !p.match(scanner.SEMICOLON) && !p.parseExpr {
+		p.eh.Error(65, "[line %d] Expect ';' after expression.", p.peek().Line)
+		return nil
+	}
+	return &ExpressionStatement{
+		E: e,
+	}
+}
+
+func (p *Parser) printStatement() Statement {
+	e := p.expression()
+	if !p.match(scanner.SEMICOLON) {
+		p.eh.Error(65, "[line %d] Expect ';' after value.", p.peek().Line)
+		return nil
+	}
+	return &PrintStatement{
+		E: e,
+	}
 }
 
 func (p *Parser) expression() Expr {
@@ -193,4 +228,8 @@ func (p *Parser) check(tokenType scanner.TokenType) bool {
 
 func (p *Parser) advance() {
 	p.p++
+}
+
+func (p *Parser) isAtEnd() bool {
+	return len(p.tokens) <= p.p || p.tokens[p.p].Type == scanner.EOF
 }

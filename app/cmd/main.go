@@ -27,15 +27,26 @@ func main() {
 		parseFile(os.Args[2])
 	case "evaluate":
 		evaluateFile(os.Args[2])
+	case "run":
+		runFile(os.Args[2])
 	}
 
 	os.Exit(0)
 }
 
+func runFile(fileName string) {
+	statements := parseExpr(fileName, false)
+	interpreter := ast.NewStatementInterpreter()
+	err := interpreter.Interpret(statements)
+	if err != 0 {
+		os.Exit(err)
+	}
+}
+
 func evaluateFile(fileName string) {
-	expr := parseExpr(fileName)
-	interpreter := ast.NewInterpreter()
-	res, err := interpreter.Interpret(expr)
+	expr := parseExpr(fileName, true)
+	interpreter := ast.NewExprInterpreter()
+	res, err := interpreter.Interpret(expr[0])
 	if err != 0 {
 		os.Exit(err)
 	}
@@ -43,17 +54,17 @@ func evaluateFile(fileName string) {
 }
 
 func parseFile(fileName string) {
-	expr := parseExpr(fileName)
+	expr := parseExpr(fileName, true)
 	astPrinter := ast.NewAstPrinter()
-	fmt.Println(expr.Accept(astPrinter))
+	fmt.Println(expr[0].Accept(astPrinter))
 }
 
-func parseExpr(fileName string) parse.Expr {
+func parseExpr(fileName string, parseExpr bool) []parse.Statement {
 	tokens, errorCode := tokenize(fileName)
 	if errorCode != 0 {
 		os.Exit(errorCode)
 	}
-	parser := parse.NewParser(tokens)
+	parser := parse.NewParser(tokens, parseExpr)
 	expr, err := parser.Parse()
 	if err != 0 {
 		os.Exit(err)
