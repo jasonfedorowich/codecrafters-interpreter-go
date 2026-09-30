@@ -2,9 +2,10 @@ package ast
 
 //go:generate mockgen -source=statement_interpreter.go -destination=mocks/mock_printer.go -package=mocks
 
-
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/error_code"
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/parse"
@@ -14,14 +15,12 @@ type Printer interface {
 	Print(a any)
 }
 
-type printer struct{
-
+type printer struct {
 }
 
-func (p *printer) Print(a any){
+func (p *printer) Print(a any) {
 	fmt.Println(a)
 }
-
 
 type StatementInterpreter struct {
 	ExprInterpreter
@@ -31,7 +30,7 @@ type StatementInterpreter struct {
 func NewStatementInterpreter() *StatementInterpreter {
 	return &StatementInterpreter{
 		eh: &error_code.ErrorHandler{},
-		p: &printer{},
+		p:  &printer{},
 	}
 }
 
@@ -52,7 +51,20 @@ func (i *StatementInterpreter) VisitExpressionStatement(expr *parse.ExpressionSt
 
 func (i *StatementInterpreter) VisitPrintStatement(expr *parse.PrintStatement) any {
 	r := i.evaluate(expr.E)
-	s := toString(r)
+	s := stringify(r)
 	i.p.Print(s)
 	return nil
+}
+
+func stringify(a any) string {
+	if a == nil {
+		return "nil"
+	}
+	if val, ok := a.(float64); ok {
+		s := strconv.FormatFloat(val, 'f', -1, 64)
+		if strings.HasSuffix(s, ".0") {
+			return strings.TrimSuffix(s, ".0")
+		}
+	}
+	return fmt.Sprint(a)
 }

@@ -44,5 +44,13 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		statements, _ := parser.Parse()
 		_ = is.interpreter.Interpret(statements)
 	})
+	is.Run("test print with number", func() {
+		is.p.EXPECT().Print("124").Times(1)
+		tokenizer := scanner.NewTokenizer("print (49 * 2 + 75 * 2) / (2);")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, true)
+		statements, _ := parser.Parse()
+		_ = is.interpreter.Interpret(statements)
+	})
 
 }
