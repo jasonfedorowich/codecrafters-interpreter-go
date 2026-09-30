@@ -36,6 +36,9 @@ func NewStatementInterpreter() *StatementInterpreter {
 
 func (i *StatementInterpreter) Interpret(statements []parse.Statement) int {
 	for _, s := range statements {
+		if i.eh.InError() {
+			return i.eh.ErrorCode
+		}
 		i.evaluate(s)
 	}
 	return i.eh.ErrorCode
