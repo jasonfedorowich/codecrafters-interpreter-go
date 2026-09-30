@@ -231,5 +231,5 @@ func (p *Parser) advance() {
 }
 
 func (p *Parser) isAtEnd() bool {
-	return len(p.tokens) <= p.p || p.tokens[p.p].Type == scanner.EOF
+	return len(p.tokens) <= p.p || p.tokens[p.p].Type == scanner.EOF || p.eh.InError()
 }
