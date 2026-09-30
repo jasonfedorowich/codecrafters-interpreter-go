@@ -54,6 +54,9 @@ func (i *StatementInterpreter) VisitExpressionStatement(expr *parse.ExpressionSt
 
 func (i *StatementInterpreter) VisitPrintStatement(expr *parse.PrintStatement) any {
 	r := i.evaluate(expr.E)
+	if i.eh.InError() {
+		return nil
+	}
 	s := stringify(r)
 	i.p.Print(s)
 	return nil

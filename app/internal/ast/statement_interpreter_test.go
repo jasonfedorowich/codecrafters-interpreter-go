@@ -52,5 +52,12 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		statements, _ := parser.Parse()
 		_ = is.interpreter.Interpret(statements)
 	})
+	is.Run("test invalid print", func() {
+		tokenizer := scanner.NewTokenizer("print false * (24 + 68);")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, true)
+		statements, _ := parser.Parse()
+		_ = is.interpreter.Interpret(statements)
+	})
 
 }
