@@ -78,5 +78,12 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		statements, _ := parser.Parse()
 		_ = is.interpreter.InterpretStatements(statements)
 	})
+	is.Run("test undefined variable", func() {
+		tokenizer := scanner.NewTokenizer("print quz;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		_ = is.interpreter.InterpretStatements(statements)
+	})
 
 }

@@ -233,7 +233,12 @@ func (i *Interpreter) isBool(e any) bool {
 }
 
 func (i *Interpreter) VisitIdentifierExpr(ie *parse.IdentifierExpr) any {
-	return i.e.Get(ie.Name.Lexeme)
+	v, ok := i.e.CheckAndGet(ie.Name.Lexeme)
+	if !ok {
+		i.eh.Error(70, "Undefined variable '%s'", ie.Name.Lexeme)
+		return nil
+	}
+	return v
 }
 
 func (i *Interpreter) VisitVarStatement(v *parse.VarStatement) any {
