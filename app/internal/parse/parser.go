@@ -80,7 +80,23 @@ func (p *Parser) printStatement() Statement {
 }
 
 func (p *Parser) expression() Expr {
-	return p.equality()
+	return p.assignment()
+}
+
+func (p *Parser) assignment() Expr {
+	e := p.equality()
+	if p.match(scanner.EQUAL) {
+		equals := p.prev()
+		rval := p.assignment()
+		if v, ok := e.(*IdentifierExpr); ok {
+			return &AssignmentExpr{
+				Name:  v.Name,
+				Value: rval,
+			}
+		}
+		p.eh.Error(65, "[line %d] Invalid assignment target.", equals.Line)
+	}
+	return e
 }
 
 func (p *Parser) equality() Expr {

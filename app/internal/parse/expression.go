@@ -49,6 +49,15 @@ func (ie *IdentifierExpr) Accept(visitor Visitor) any {
 	return visitor.VisitIdentifierExpr(ie)
 }
 
+type AssignmentExpr struct {
+	Name  *scanner.Token
+	Value Expr
+}
+
+func (ae *AssignmentExpr) Accept(visitor Visitor) any {
+	return visitor.VisitAssignmentExpr(ae)
+}
+
 type Visitor interface {
 	VisitBinaryExpr(expr *BinaryExpr) any
 	VisitLiteralExpr(expr *LiteralExpr) any
@@ -58,4 +67,5 @@ type Visitor interface {
 	VisitPrintStatement(expr *PrintStatement) any
 	VisitIdentifierExpr(ie *IdentifierExpr) any
 	VisitVarStatement(v *VarStatement) any
+	VisitAssignmentExpr(ae *AssignmentExpr) any
 }

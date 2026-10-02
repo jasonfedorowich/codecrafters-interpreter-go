@@ -113,6 +113,16 @@ func (i *Interpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
 	}
 }
 
+func (i *Interpreter) VisitAssignmentExpr(expr *parse.AssignmentExpr) any {
+	e := i.evaluate(expr.Value)
+	err := i.e.Assign(expr.Name.Lexeme, e)
+	if err != nil {
+		i.eh.Error(70, "Undefined variable: %s", expr.Name.Lexeme)
+		return nil
+	}
+	return e
+}
+
 func (i *Interpreter) evaluate(expr parse.Expr) any {
 	return expr.Accept(i)
 }

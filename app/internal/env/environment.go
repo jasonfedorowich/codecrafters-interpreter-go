@@ -1,5 +1,7 @@
 package env
 
+import "fmt"
+
 type Env struct {
 	values map[string]any
 }
@@ -10,12 +12,20 @@ func NewEnv() *Env {
 	}
 }
 
-func (e *Env) Contains(key string) bool{
+func (e *Env) Contains(key string) bool {
 	_, ok := e.values[key]
 	return ok
 }
 
-func (e *Env) CheckAndGet(key string) (v any, ok bool){
+func (e *Env) Assign(key string, value any) error {
+	if e.Contains(key) {
+		e.values[key] = value
+		return nil
+	}
+	return fmt.Errorf("key does not exist: %s", key)
+}
+
+func (e *Env) CheckAndGet(key string) (v any, ok bool) {
 	v, ok = e.values[key]
 	return
 }

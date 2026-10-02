@@ -9,6 +9,11 @@ import (
 type AstPrinter struct {
 }
 
+func (ap *AstPrinter) VisitAssignmentExpr(ae *parse.AssignmentExpr) any {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (ap *AstPrinter) VisitIdentifierExpr(ie *parse.IdentifierExpr) any {
 	//TODO implement me
 	panic("implement me")

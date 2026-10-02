@@ -94,5 +94,14 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		_ = is.interpreter.InterpretStatements(statements)
 
 	})
+	is.Run("test assignment", func() {
+		is.p.EXPECT().Print("1").Times(1)
+		tokenizer := scanner.NewTokenizer("var foo;\nfoo = 1;\nprint foo;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		_ = is.interpreter.InterpretStatements(statements)
+
+	})
 
 }
