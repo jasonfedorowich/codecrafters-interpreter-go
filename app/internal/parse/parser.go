@@ -24,9 +24,30 @@ func NewParser(tokens []*scanner.Token, parseExpr bool) *Parser {
 func (p *Parser) Parse() ([]Statement, int) {
 	var statements []Statement
 	for !p.isAtEnd() {
-		statements = append(statements, p.statement())
+		statements = append(statements, p.declaration())
 	}
 	return statements, p.eh.ErrorCode
+}
+
+func (p *Parser) declaration() Statement {
+	if p.match(scanner.VAR) {
+		return p.varDeclaration()
+	}
+	return p.statement()
+}
+
+func (p *Parser) varDeclaration() Statement {
+	var token = p.consume(scanner.IDENTIFIER, "Expect variable name.")
+	var expr Expr
+	if p.match(scanner.EQUAL) {
+		expr = p.expression()
+	}
+	if !p.match(scanner.SEMICOLON) {
+		p.eh.Error(65, "[line %d] Expect ';' after variable declaration.", p.peek().Line)
+		return nil
+	}
+	return &VarStatement{Name: token,
+		Value: expr}
 }
 
 func (p *Parser) statement() Statement {
@@ -197,6 +218,12 @@ func (p *Parser) primary() Expr {
 			E: expr,
 		}
 	}
+
+	if p.match(scanner.IDENTIFIER) {
+		return &IdentifierExpr{
+			Name: p.prev(),
+		}
+	}
 	p.eh.Error(65, "[line %d] Unexpected token", p.peek().Line)
 	return nil
 }
@@ -226,10 +253,20 @@ func (p *Parser) check(tokenType scanner.TokenType) bool {
 	return p.tokens[p.p].Type == tokenType
 }
 
-func (p *Parser) advance() {
+func (p *Parser) advance() *scanner.Token {
+	var token = p.tokens[p.p]
 	p.p++
+	return token
 }
 
 func (p *Parser) isAtEnd() bool {
 	return len(p.tokens) <= p.p || p.tokens[p.p].Type == scanner.EOF || p.eh.InError()
+}
+
+func (p *Parser) consume(tokenType scanner.TokenType, errorMessage string) *scanner.Token {
+	if p.check(tokenType) {
+		return p.advance()
+	}
+	p.eh.Error(65, "[line %d] %s", p.peek().Line, errorMessage)
+	return nil
 }

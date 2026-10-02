@@ -1,5 +1,7 @@
 package parse
 
+import "github.com/codecrafters-io/interpreter-starter-go/app/internal/scanner"
+
 type Statement interface {
 	Accept(visitor Visitor) any
 }
@@ -18,4 +20,13 @@ type PrintStatement struct {
 
 func (p *PrintStatement) Accept(visitor Visitor) any {
 	return visitor.VisitPrintStatement(p)
+}
+
+type VarStatement struct {
+	Name  *scanner.Token
+	Value Expr
+}
+
+func (v *VarStatement) Accept(visitor Visitor) any {
+	return visitor.VisitVarStatement(v)
 }

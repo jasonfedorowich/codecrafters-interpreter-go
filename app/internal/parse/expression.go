@@ -41,6 +41,14 @@ func (ue *UnaryExpr) Accept(visitor Visitor) any {
 	return visitor.VisitUnaryExpr(ue)
 }
 
+type IdentifierExpr struct {
+	Name *scanner.Token
+}
+
+func (ie *IdentifierExpr) Accept(visitor Visitor) any {
+	return visitor.VisitIdentifierExpr(ie)
+}
+
 type Visitor interface {
 	VisitBinaryExpr(expr *BinaryExpr) any
 	VisitLiteralExpr(expr *LiteralExpr) any
@@ -48,4 +56,6 @@ type Visitor interface {
 	VisitUnaryExpr(expr *UnaryExpr) any
 	VisitExpressionStatement(expr *ExpressionStatement) any
 	VisitPrintStatement(expr *PrintStatement) any
+	VisitIdentifierExpr(ie *IdentifierExpr) any
+	VisitVarStatement(v *VarStatement) any
 }

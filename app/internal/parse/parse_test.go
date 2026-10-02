@@ -121,4 +121,12 @@ func (ps *ParseSuite) TestParser() {
 		ps.Assert().IsType(&ExpressionStatement{}, expr[0])
 		ps.Equal(65, err)
 	})
+	ps.Run("parse var declaration", func() {
+		tokenizer := scanner.NewTokenizer("var a = 1;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := NewParser(tokens, false)
+		expr, err := parser.Parse()
+		ps.Assert().IsType(&VarStatement{}, expr[0])
+		ps.Equal(0, err)
+	})
 }

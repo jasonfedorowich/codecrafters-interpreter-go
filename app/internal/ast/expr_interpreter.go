@@ -15,6 +15,16 @@ type ExprInterpreter struct {
 	eh *error_code.ErrorHandler
 }
 
+func (i *ExprInterpreter) VisitIdentifierExpr(ie *parse.IdentifierExpr) any {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (i *ExprInterpreter) VisitVarStatement(v *parse.VarStatement) any {
+	//TODO implement me
+	panic("implement me")
+}
+
 func NewExprInterpreter() *ExprInterpreter {
 	return &ExprInterpreter{
 		eh: &error_code.ErrorHandler{},

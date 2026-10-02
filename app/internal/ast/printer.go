@@ -9,6 +9,16 @@ import (
 type AstPrinter struct {
 }
 
+func (ap *AstPrinter) VisitIdentifierExpr(ie *parse.IdentifierExpr) any {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (ap *AstPrinter) VisitVarStatement(v *parse.VarStatement) any {
+	//TODO implement me
+	panic("implement me")
+}
+
 func NewAstPrinter() *AstPrinter {
 	return &AstPrinter{}
 }

@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/codecrafters-io/interpreter-starter-go/app/internal/env"
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/error_code"
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/parse"
 )
@@ -25,12 +26,14 @@ func (p *printer) Print(a any) {
 type StatementInterpreter struct {
 	ExprInterpreter
 	p Printer
+	e *env.Env
 }
 
 func NewStatementInterpreter() *StatementInterpreter {
 	return &StatementInterpreter{
 		eh: &error_code.ErrorHandler{},
 		p:  &printer{},
+		e:  env.NewEnv(),
 	}
 }
 
@@ -46,6 +49,16 @@ func (i *StatementInterpreter) Interpret(statements []parse.Statement) int {
 
 func (i *StatementInterpreter) evaluate(expr parse.Expr) any {
 	return expr.Accept(i)
+}
+
+func (i *StatementInterpreter) VisitIdentifierExpr(ie *parse.IdentifierExpr) any {
+	return i.e.Get(ie.Name.Lexeme)
+}
+
+func (i *StatementInterpreter) VisitVarStatement(v *parse.VarStatement) any {
+	rhs := i.evaluate(v.Value)
+	i.e.Put(v.Name.Lexeme, rhs)
+	return nil
 }
 
 func (i *StatementInterpreter) VisitExpressionStatement(expr *parse.ExpressionStatement) any {
