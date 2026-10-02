@@ -242,6 +242,10 @@ func (i *Interpreter) VisitIdentifierExpr(ie *parse.IdentifierExpr) any {
 }
 
 func (i *Interpreter) VisitVarStatement(v *parse.VarStatement) any {
+	if v.Value == nil {
+		i.e.Put(v.Name.Lexeme, nil)
+		return nil
+	}
 	rhs := i.evaluate(v.Value)
 	i.e.Put(v.Name.Lexeme, rhs)
 	return nil
