@@ -10,11 +10,11 @@ import (
 
 type InterpreterTestSuite struct {
 	suite.Suite
-	interpreter *ExprInterpreter
+	interpreter *Interpreter
 }
 
 func (is *InterpreterTestSuite) SetupTest() {
-	is.interpreter = NewExprInterpreter()
+	is.interpreter = NewInterpreter()
 }
 
 func (is *InterpreterTestSuite) TearDownTest() {
@@ -31,7 +31,7 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, true)
 		statements, _ := parser.Parse()
-		res, _ := is.interpreter.Interpret(statements[0])
+		res, _ := is.interpreter.InterpretExpr(statements[0])
 		is.Equal("true", res)
 	})
 	is.Run("evaluate string", func() {
@@ -39,7 +39,7 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, true)
 		statements, _ := parser.Parse()
-		res, _ := is.interpreter.Interpret(statements[0])
+		res, _ := is.interpreter.InterpretExpr(statements[0])
 		is.Equal("hello world!", res)
 	})
 	is.Run("evaluate double", func() {
@@ -47,7 +47,7 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, true)
 		statements, _ := parser.Parse()
-		res, _ := is.interpreter.Interpret(statements[0])
+		res, _ := is.interpreter.InterpretExpr(statements[0])
 		is.Equal("10", res)
 	})
 	is.Run("evaluate group", func() {
@@ -55,7 +55,7 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, true)
 		statements, _ := parser.Parse()
-		res, _ := is.interpreter.Interpret(statements[0])
+		res, _ := is.interpreter.InterpretExpr(statements[0])
 		is.Equal("10", res)
 	})
 	is.Run("evaluate unary", func() {
@@ -63,7 +63,7 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, true)
 		statements, _ := parser.Parse()
-		res, _ := is.interpreter.Interpret(statements[0])
+		res, _ := is.interpreter.InterpretExpr(statements[0])
 		is.Equal("-10", res)
 	})
 	is.Run("evaluate unary nil", func() {
@@ -71,7 +71,7 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, true)
 		statements, _ := parser.Parse()
-		res, _ := is.interpreter.Interpret(statements[0])
+		res, _ := is.interpreter.InterpretExpr(statements[0])
 		is.Equal("true", res)
 	})
 	is.Run("strings equality", func() {
@@ -79,7 +79,7 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, true)
 		statements, _ := parser.Parse()
-		res, _ := is.interpreter.Interpret(statements[0])
+		res, _ := is.interpreter.InterpretExpr(statements[0])
 		is.Equal("true", res)
 	})
 	is.Run("strings inequality", func() {
@@ -87,7 +87,7 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, true)
 		statements, _ := parser.Parse()
-		res, _ := is.interpreter.Interpret(statements[0])
+		res, _ := is.interpreter.InterpretExpr(statements[0])
 		is.Equal("true", res)
 	})
 	is.Run("unary ! errors", func() {
@@ -95,7 +95,7 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, true)
 		statements, _ := parser.Parse()
-		res, err := is.interpreter.Interpret(statements[0])
+		res, err := is.interpreter.InterpretExpr(statements[0])
 		is.Equal("true", res)
 		is.Equal(0, err)
 	})
@@ -104,7 +104,7 @@ func (is *InterpreterTestSuite) TestInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, true)
 		statements, _ := parser.Parse()
-		res, err := is.interpreter.Interpret(statements[0])
+		res, err := is.interpreter.InterpretExpr(statements[0])
 		is.Equal("true", res)
 		is.Equal(0, err)
 	})

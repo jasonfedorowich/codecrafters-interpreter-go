@@ -36,8 +36,8 @@ func main() {
 
 func runFile(fileName string) {
 	statements := parseExpr(fileName, false)
-	interpreter := ast.NewStatementInterpreter()
-	err := interpreter.Interpret(statements)
+	interpreter := ast.NewInterpreter()
+	err := interpreter.InterpretStatements(statements)
 	if err != 0 {
 		os.Exit(err)
 	}
@@ -45,8 +45,8 @@ func runFile(fileName string) {
 
 func evaluateFile(fileName string) {
 	expr := parseExpr(fileName, true)
-	interpreter := ast.NewExprInterpreter()
-	res, err := interpreter.Interpret(expr[0])
+	interpreter := ast.NewInterpreter()
+	res, err := interpreter.InterpretExpr(expr[0])
 	if err != 0 {
 		os.Exit(err)
 	}

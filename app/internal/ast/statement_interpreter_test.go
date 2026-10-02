@@ -14,7 +14,7 @@ import (
 
 type StatementInterpreterTestSuite struct {
 	suite.Suite
-	interpreter *StatementInterpreter
+	interpreter *Interpreter
 	ctrl        *gomock.Controller
 	p           *mocks.MockPrinter
 }
@@ -22,7 +22,7 @@ type StatementInterpreterTestSuite struct {
 func (is *StatementInterpreterTestSuite) SetupSubTest() {
 	is.ctrl = gomock.NewController(is.T())
 	is.p = mocks.NewMockPrinter(is.ctrl)
-	is.interpreter = &StatementInterpreter{
+	is.interpreter = &Interpreter{
 		eh: &error_code.ErrorHandler{},
 		p:  is.p,
 		e:  env.NewEnv(),
@@ -44,7 +44,7 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, true)
 		statements, _ := parser.Parse()
-		_ = is.interpreter.Interpret(statements)
+		_ = is.interpreter.InterpretStatements(statements)
 	})
 	is.Run("test print with number", func() {
 		is.p.EXPECT().Print("124").Times(1)
@@ -52,14 +52,14 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, true)
 		statements, _ := parser.Parse()
-		_ = is.interpreter.Interpret(statements)
+		_ = is.interpreter.InterpretStatements(statements)
 	})
 	is.Run("test invalid print", func() {
 		tokenizer := scanner.NewTokenizer("print false * (24 + 68);")
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, true)
 		statements, _ := parser.Parse()
-		_ = is.interpreter.Interpret(statements)
+		_ = is.interpreter.InterpretStatements(statements)
 	})
 	is.Run("test var declaration", func() {
 		is.p.EXPECT().Print("1").Times(1)
@@ -67,7 +67,16 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, false)
 		statements, _ := parser.Parse()
-		_ = is.interpreter.Interpret(statements)
+		_ = is.interpreter.InterpretStatements(statements)
+	})
+	is.Run("test statements and declarations", func() {
+		is.p.EXPECT().Print("152").Times(1)
+		is.p.EXPECT().Print("228").Times(1)
+		tokenizer := scanner.NewTokenizer("var quz = 76;\n\t var hello = 76;\n\t print quz + hello;\n\t var world = 76;\n\t\tprint quz + hello + world;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		_ = is.interpreter.InterpretStatements(statements)
 	})
 
 }

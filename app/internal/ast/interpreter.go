@@ -1,37 +1,55 @@
 package ast
 
+//go:generate mockgen -source=interpreter.go -destination=mocks/mock_printer.go -package=mocks
+
 import (
 	"fmt"
 	"strconv"
 	"strings"
 
+	"github.com/codecrafters-io/interpreter-starter-go/app/internal/env"
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/error_code"
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/parse"
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/scanner"
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/types"
 )
 
-type ExprInterpreter struct {
+type Printer interface {
+	Print(a any)
+}
+
+type printer struct {
+}
+
+func (p *printer) Print(a any) {
+	fmt.Println(a)
+}
+
+type Interpreter struct {
 	eh *error_code.ErrorHandler
+	p  Printer
+	e  *env.Env
 }
 
-func (i *ExprInterpreter) VisitIdentifierExpr(ie *parse.IdentifierExpr) any {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (i *ExprInterpreter) VisitVarStatement(v *parse.VarStatement) any {
-	//TODO implement me
-	panic("implement me")
-}
-
-func NewExprInterpreter() *ExprInterpreter {
-	return &ExprInterpreter{
+func NewInterpreter() *Interpreter {
+	return &Interpreter{
 		eh: &error_code.ErrorHandler{},
+		p:  &printer{},
+		e:  env.NewEnv(),
 	}
 }
 
-func (i *ExprInterpreter) Interpret(expr parse.Expr) (any, int) {
+func (i *Interpreter) InterpretStatements(statements []parse.Statement) int {
+	for _, s := range statements {
+		if i.eh.InError() {
+			return i.eh.ErrorCode
+		}
+		i.evaluate(s)
+	}
+	return i.eh.ErrorCode
+}
+
+func (i *Interpreter) InterpretExpr(expr parse.Expr) (any, int) {
 	res := i.evaluate(expr)
 	if res == nil {
 		return "nil", i.eh.ErrorCode
@@ -45,11 +63,11 @@ func (i *ExprInterpreter) Interpret(expr parse.Expr) (any, int) {
 	return fmt.Sprint(res), i.eh.ErrorCode
 }
 
-func (i *ExprInterpreter) InError() bool {
+func (i *Interpreter) InError() bool {
 	return i.eh.InError()
 }
 
-func (i *ExprInterpreter) VisitBinaryExpr(expr *parse.BinaryExpr) any {
+func (i *Interpreter) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 	left := i.evaluate(expr.Left)
 	right := i.evaluate(expr.Right)
 
@@ -71,15 +89,15 @@ func (i *ExprInterpreter) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 	return nil
 }
 
-func (i *ExprInterpreter) VisitLiteralExpr(expr *parse.LiteralExpr) any {
+func (i *Interpreter) VisitLiteralExpr(expr *parse.LiteralExpr) any {
 	return expr.Obj
 }
 
-func (i *ExprInterpreter) VisitGroupExpr(expr *parse.GroupingExpr) any {
+func (i *Interpreter) VisitGroupExpr(expr *parse.GroupingExpr) any {
 	return i.evaluate(expr.E)
 }
 
-func (i *ExprInterpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
+func (i *Interpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
 	switch expr.Operator.Type {
 	case scanner.MINUS:
 		if ok, v := types.IsNumber(i.evaluate(expr.Right)); ok {
@@ -95,19 +113,11 @@ func (i *ExprInterpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
 	}
 }
 
-func (i *ExprInterpreter) VisitExpressionStatement(expr *parse.ExpressionStatement) any {
-	return i.evaluate(expr.E)
-}
-
-func (i *ExprInterpreter) VisitPrintStatement(expr *parse.PrintStatement) any {
-	return nil
-}
-
-func (i *ExprInterpreter) evaluate(expr parse.Expr) any {
+func (i *Interpreter) evaluate(expr parse.Expr) any {
 	return expr.Accept(i)
 }
 
-func (i *ExprInterpreter) parseNumberTypes(numbers ...any) []float64 {
+func (i *Interpreter) parseNumberTypes(numbers ...any) []float64 {
 	var nums []float64
 	for _, n := range numbers {
 		if number, ok := n.(float64); ok {
@@ -120,7 +130,7 @@ func (i *ExprInterpreter) parseNumberTypes(numbers ...any) []float64 {
 	return nums
 }
 
-func (i *ExprInterpreter) add(left any, right any) any {
+func (i *Interpreter) add(left any, right any) any {
 	if i.eh.InError() {
 		return nil
 	}
@@ -138,7 +148,7 @@ func (i *ExprInterpreter) add(left any, right any) any {
 	return nil
 }
 
-func (i *ExprInterpreter) sub(left any, right any) any {
+func (i *Interpreter) sub(left any, right any) any {
 	arr := i.parseNumberTypes(left, right)
 	if arr != nil {
 		return arr[0] - arr[1]
@@ -146,7 +156,7 @@ func (i *ExprInterpreter) sub(left any, right any) any {
 	return nil
 }
 
-func (i *ExprInterpreter) mul(left any, right any) any {
+func (i *Interpreter) mul(left any, right any) any {
 	arr := i.parseNumberTypes(left, right)
 	if arr != nil {
 		return arr[0] * arr[1]
@@ -154,7 +164,7 @@ func (i *ExprInterpreter) mul(left any, right any) any {
 	return nil
 }
 
-func (i *ExprInterpreter) div(left any, right any) any {
+func (i *Interpreter) div(left any, right any) any {
 	arr := i.parseNumberTypes(left, right)
 	if arr != nil {
 		return arr[0] / arr[1]
@@ -162,7 +172,7 @@ func (i *ExprInterpreter) div(left any, right any) any {
 	return nil
 }
 
-func (i *ExprInterpreter) logical(tokenType scanner.TokenType, left any, right any) any {
+func (i *Interpreter) logical(tokenType scanner.TokenType, left any, right any) any {
 	arr := i.parseNumberTypes(left, right)
 	if arr == nil {
 		return nil
@@ -181,7 +191,7 @@ func (i *ExprInterpreter) logical(tokenType scanner.TokenType, left any, right a
 	return nil
 }
 
-func (i *ExprInterpreter) equal(tokenType scanner.TokenType, left any, right any) any {
+func (i *Interpreter) equal(tokenType scanner.TokenType, left any, right any) any {
 	//numbers := types.ParseNumbers(left, right)
 	//if numbers != nil {
 	//	switch tokenType {
@@ -212,7 +222,7 @@ func (i *ExprInterpreter) equal(tokenType scanner.TokenType, left any, right any
 	return nil
 }
 
-func (i *ExprInterpreter) isBool(e any) bool {
+func (i *Interpreter) isBool(e any) bool {
 	if e == nil {
 		return false
 	}
@@ -220,4 +230,41 @@ func (i *ExprInterpreter) isBool(e any) bool {
 		return v
 	}
 	return true
+}
+
+func (i *Interpreter) VisitIdentifierExpr(ie *parse.IdentifierExpr) any {
+	return i.e.Get(ie.Name.Lexeme)
+}
+
+func (i *Interpreter) VisitVarStatement(v *parse.VarStatement) any {
+	rhs := i.evaluate(v.Value)
+	i.e.Put(v.Name.Lexeme, rhs)
+	return nil
+}
+
+func (i *Interpreter) VisitExpressionStatement(expr *parse.ExpressionStatement) any {
+	return i.evaluate(expr.E)
+}
+
+func (i *Interpreter) VisitPrintStatement(expr *parse.PrintStatement) any {
+	r := i.evaluate(expr.E)
+	if i.eh.InError() {
+		return nil
+	}
+	s := stringify(r)
+	i.p.Print(s)
+	return nil
+}
+
+func stringify(a any) string {
+	if a == nil {
+		return "nil"
+	}
+	if val, ok := a.(float64); ok {
+		s := strconv.FormatFloat(val, 'f', -1, 64)
+		if strings.HasSuffix(s, ".0") {
+			return strings.TrimSuffix(s, ".0")
+		}
+	}
+	return fmt.Sprint(a)
 }
