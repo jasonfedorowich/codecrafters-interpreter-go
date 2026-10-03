@@ -114,7 +114,7 @@ func (p *Parser) expression() Expr {
 }
 
 func (p *Parser) assignment() Expr {
-	e := p.equality()
+	e := p.or()
 	if p.match(scanner.EQUAL) {
 		equals := p.prev()
 		rval := p.assignment()
@@ -125,6 +125,38 @@ func (p *Parser) assignment() Expr {
 			}
 		}
 		p.eh.Error(65, "[line %d] Invalid assignment target.", equals.Line)
+	}
+	return e
+}
+
+func (p *Parser) or() Expr {
+	e := p.and()
+	if p.eh.InError() {
+		return nil
+	}
+	for p.match(scanner.OR) {
+		t := p.prev()
+		e = &LogicalExpr{
+			Left:     e,
+			Right:    p.and(),
+			Operator: t,
+		}
+	}
+	return e
+}
+
+func (p *Parser) and() Expr {
+	e := p.equality()
+	if p.eh.InError() {
+		return nil
+	}
+	for p.match(scanner.AND) {
+		t := p.prev()
+		e = &LogicalExpr{
+			Left:     e,
+			Right:    p.equality(),
+			Operator: t,
+		}
 	}
 	return e
 }

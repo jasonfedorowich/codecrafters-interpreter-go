@@ -130,5 +130,14 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		err := is.interpreter.InterpretStatements(statements)
 		is.Assert().Equal(0, err)
 	})
+	is.Run("logical OR", func() {
+		tokenizer := scanner.NewTokenizer("true or false;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, true)
+		statements, _ := parser.Parse()
+		res, err := is.interpreter.InterpretExpr(statements[0])
+		is.Equal("true", res)
+		is.Equal(0, err)
+	})
 
 }

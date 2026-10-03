@@ -67,6 +67,21 @@ func (i *Interpreter) InError() bool {
 	return i.eh.InError()
 }
 
+func (i *Interpreter) VisitLogicalExpr(expr *parse.LogicalExpr) any {
+	l := i.evaluate(expr.Left)
+	switch expr.Operator.Type {
+	case scanner.OR:
+		if i.isBool(l) {
+			return l
+		}
+	case scanner.AND:
+		if !i.isBool(l) {
+			return l
+		}
+	}
+	return i.evaluate(expr.Right)
+}
+
 func (i *Interpreter) VisitBlockStatement(b *parse.BlockStatement) any {
 	return i.blockStatement(b.Statements, env.NewWrappedEnv(i.e))
 }

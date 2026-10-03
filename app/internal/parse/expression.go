@@ -58,6 +58,16 @@ func (ae *AssignmentExpr) Accept(visitor Visitor) any {
 	return visitor.VisitAssignmentExpr(ae)
 }
 
+type LogicalExpr struct {
+	Left     Expr
+	Right    Expr
+	Operator *scanner.Token
+}
+
+func (le *LogicalExpr) Accept(visitor Visitor) any {
+	return visitor.VisitLogicalExpr(le)
+}
+
 type Visitor interface {
 	VisitBinaryExpr(expr *BinaryExpr) any
 	VisitLiteralExpr(expr *LiteralExpr) any
@@ -70,4 +80,5 @@ type Visitor interface {
 	VisitAssignmentExpr(ae *AssignmentExpr) any
 	VisitBlockStatement(b *BlockStatement) any
 	VisitIfStatement(i *IfStatement) any
+	VisitLogicalExpr(le *LogicalExpr) any
 }

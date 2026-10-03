@@ -153,4 +153,12 @@ func (ps *ParseSuite) TestParser() {
 		ps.Assert().IsType(&IfStatement{}, expr[0])
 		ps.Equal(0, err)
 	})
+	ps.Run("parse logical expression", func() {
+		tokenizer := scanner.NewTokenizer("true or false;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := NewParser(tokens, false)
+		expr, err := parser.Parse()
+		ps.Assert().IsType(&ExpressionStatement{}, expr[0])
+		ps.Equal(0, err)
+	})
 }
