@@ -36,6 +36,8 @@ const (
 	DOT           TokenType = "DOT"
 	STAR          TokenType = "STAR"
 	PLUS          TokenType = "PLUS"
+	PLUS_PLUS     TokenType = "PLUS_PLUS"
+	MINUS_MINUS   TokenType = "MINUS_MINUS"
 	MINUS         TokenType = "MINUS"
 	SEMICOLON     TokenType = "SEMICOLON"
 	EQUAL         TokenType = "EQUAL"

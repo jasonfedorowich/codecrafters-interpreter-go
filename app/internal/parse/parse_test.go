@@ -169,4 +169,12 @@ func (ps *ParseSuite) TestParser() {
 		ps.Assert().IsType(&WhileStatement{}, expr[0])
 		ps.Equal(0, err)
 	})
+	ps.Run("parse for statement", func() {
+		tokenizer := scanner.NewTokenizer("for (var world = 0; world < 3; world = world + 1) {\n  print world;\n}")
+		tokens, _ := tokenizer.Tokenize()
+		parser := NewParser(tokens, false)
+		expr, err := parser.Parse()
+		ps.Assert().IsType(&BlockStatement{}, expr[0])
+		ps.Equal(0, err)
+	})
 }

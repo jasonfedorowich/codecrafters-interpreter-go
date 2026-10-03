@@ -149,4 +149,14 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		is.Assert().Equal(0, err)
 	})
 
+	is.Run("for statement", func() {
+		is.p.EXPECT().Print(gomock.Any()).AnyTimes()
+		tokenizer := scanner.NewTokenizer("for (var i = 0; i < 3; i = i + 1) print i;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
+
 }

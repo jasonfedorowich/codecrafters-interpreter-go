@@ -59,6 +59,8 @@ func (p *Parser) statement() Statement {
 		return p.ifStatement()
 	} else if p.match(scanner.WHILE) {
 		return p.whileStatement()
+	} else if p.match(scanner.FOR) {
+		return p.forStatement()
 	}
 	return p.expressionStatement()
 }
@@ -120,6 +122,49 @@ func (p *Parser) whileStatement() Statement {
 		Cond: cond,
 		Body: body,
 	}
+}
+
+func (p *Parser) forStatement() Statement {
+	p.consume(scanner.LEFT_PAREN, "Expect '(' after 'for'.")
+	var initializer Statement
+	if p.match(scanner.SEMICOLON) {
+		initializer = nil
+	} else if p.match(scanner.VAR) {
+		initializer = p.varDeclaration()
+	} else {
+		initializer = p.expressionStatement()
+	}
+	var cond Expr
+	if !p.check(scanner.SEMICOLON) {
+		cond = p.expression()
+	}
+	p.consume(scanner.SEMICOLON, "Expect ';' after for condition.")
+	var inc Expr
+	if !p.check(scanner.RIGHT_PAREN) {
+		inc = p.expression()
+	}
+	p.consume(scanner.RIGHT_PAREN, "Expect ')' after for condition.")
+	body := p.statement()
+
+	if inc != nil {
+		body = &BlockStatement{
+			Statements: []Statement{body, &ExpressionStatement{inc}},
+		}
+	}
+	if cond == nil {
+		cond = &LiteralExpr{true}
+	}
+	body = &WhileStatement{
+		Cond: cond,
+		Body: body,
+	}
+
+	if initializer != nil {
+		body = &BlockStatement{
+			Statements: []Statement{initializer, body},
+		}
+	}
+	return body
 }
 
 func (p *Parser) expression() Expr {
