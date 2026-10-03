@@ -103,5 +103,14 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		_ = is.interpreter.InterpretStatements(statements)
 
 	})
+	is.Run("test block statements", func() {
+		is.p.EXPECT().Print("before").Times(1)
+		is.p.EXPECT().Print("after").Times(1)
+		tokenizer := scanner.NewTokenizer("{\n    var foo = \"before\";\n    print foo;\n}\n{\n    var foo = \"after\";\n    print foo;\n}")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		_ = is.interpreter.InterpretStatements(statements)
+	})
 
 }

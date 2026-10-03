@@ -68,4 +68,5 @@ type Visitor interface {
 	VisitIdentifierExpr(ie *IdentifierExpr) any
 	VisitVarStatement(v *VarStatement) any
 	VisitAssignmentExpr(ae *AssignmentExpr) any
+	VisitBlockStatement(b *BlockStatement) any
 }

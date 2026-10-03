@@ -67,6 +67,25 @@ func (i *Interpreter) InError() bool {
 	return i.eh.InError()
 }
 
+func (i *Interpreter) VisitBlockStatement(b *parse.BlockStatement) any {
+	return i.blockStatement(b.Statements, env.NewWrappedEnv(i.e))
+}
+
+func (i *Interpreter) blockStatement(statements []parse.Statement, wrappedEnv *env.Env) any {
+	prev := i.e
+	i.e = wrappedEnv
+	defer func() {
+		i.e = prev
+	}()
+	for _, s := range statements {
+		if i.eh.InError() {
+			return nil
+		}
+		i.evaluate(s)
+	}
+	return nil
+}
+
 func (i *Interpreter) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 	left := i.evaluate(expr.Left)
 	right := i.evaluate(expr.Right)

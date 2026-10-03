@@ -53,8 +53,20 @@ func (p *Parser) varDeclaration() Statement {
 func (p *Parser) statement() Statement {
 	if p.match(scanner.PRINT) {
 		return p.printStatement()
+	} else if p.match(scanner.LEFT_BRACE) {
+		return p.block()
 	}
 	return p.expressionStatement()
+}
+
+func (p *Parser) block() Statement {
+	var statements []Statement
+	for !p.check(scanner.RIGHT_BRACE) && !p.isAtEnd() {
+		statements = append(statements, p.declaration())
+	}
+	p.consume(scanner.RIGHT_BRACE, "Expect '}' after block.")
+
+	return &BlockStatement{Statements: statements}
 }
 
 func (p *Parser) expressionStatement() Statement {

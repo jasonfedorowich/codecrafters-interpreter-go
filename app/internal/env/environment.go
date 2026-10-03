@@ -4,11 +4,19 @@ import "fmt"
 
 type Env struct {
 	values map[string]any
+	e      *Env
 }
 
 func NewEnv() *Env {
 	return &Env{
 		values: make(map[string]any),
+	}
+}
+
+func NewWrappedEnv(e *Env) *Env {
+	return &Env{
+		values: make(map[string]any),
+		e:      e,
 	}
 }
 
@@ -22,6 +30,9 @@ func (e *Env) Assign(key string, value any) error {
 		e.values[key] = value
 		return nil
 	}
+	if e.e != nil {
+		return e.e.Assign(key, value)
+	}
 	return fmt.Errorf("key does not exist: %s", key)
 }
 
@@ -31,7 +42,13 @@ func (e *Env) CheckAndGet(key string) (v any, ok bool) {
 }
 
 func (e *Env) Get(key string) any {
-	return e.values[key]
+	if e.Contains(key) {
+		return e.values[key]
+	}
+	if e.e != nil {
+		return e.e.Get(key)
+	}
+	return nil
 }
 
 func (e *Env) Put(key string, value any) {
