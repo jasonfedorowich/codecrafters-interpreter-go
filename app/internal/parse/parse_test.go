@@ -161,4 +161,12 @@ func (ps *ParseSuite) TestParser() {
 		ps.Assert().IsType(&ExpressionStatement{}, expr[0])
 		ps.Equal(0, err)
 	})
+	ps.Run("parse while statement", func() {
+		tokenizer := scanner.NewTokenizer("while (true) {print 1;}")
+		tokens, _ := tokenizer.Tokenize()
+		parser := NewParser(tokens, false)
+		expr, err := parser.Parse()
+		ps.Assert().IsType(&WhileStatement{}, expr[0])
+		ps.Equal(0, err)
+	})
 }

@@ -139,5 +139,14 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		is.Equal("true", res)
 		is.Equal(0, err)
 	})
+	is.Run("while statement", func() {
+		is.p.EXPECT().Print(gomock.Any()).AnyTimes()
+		tokenizer := scanner.NewTokenizer("var foo = 0;\nwhile (foo < 3) print foo = foo + 1;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
 
 }

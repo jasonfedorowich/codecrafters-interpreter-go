@@ -147,6 +147,13 @@ func (i *Interpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
 	}
 }
 
+func (i *Interpreter) VisitWhileStatement(while *parse.WhileStatement) any {
+	for i.isBool(i.evaluate(while.Cond)) {
+		i.evaluate(while.Body)
+	}
+	return nil
+}
+
 func (i *Interpreter) VisitIfStatement(ifStmt *parse.IfStatement) any {
 	if i.isBool(i.evaluate(ifStmt.Cond)) {
 		return i.evaluate(ifStmt.Then)

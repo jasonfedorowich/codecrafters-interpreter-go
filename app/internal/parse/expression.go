@@ -81,4 +81,5 @@ type Visitor interface {
 	VisitBlockStatement(b *BlockStatement) any
 	VisitIfStatement(i *IfStatement) any
 	VisitLogicalExpr(le *LogicalExpr) any
+	VisitWhileStatement(i *WhileStatement) any
 }

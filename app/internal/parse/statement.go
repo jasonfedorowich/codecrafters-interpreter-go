@@ -48,3 +48,12 @@ type IfStatement struct {
 func (i *IfStatement) Accept(visitor Visitor) any {
 	return visitor.VisitIfStatement(i)
 }
+
+type WhileStatement struct {
+	Cond Expr
+	Body Statement
+}
+
+func (i *WhileStatement) Accept(visitor Visitor) any {
+	return visitor.VisitWhileStatement(i)
+}

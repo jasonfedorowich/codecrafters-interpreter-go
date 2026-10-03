@@ -57,6 +57,8 @@ func (p *Parser) statement() Statement {
 		return p.block()
 	} else if p.match(scanner.IF) {
 		return p.ifStatement()
+	} else if p.match(scanner.WHILE) {
+		return p.whileStatement()
 	}
 	return p.expressionStatement()
 }
@@ -106,6 +108,17 @@ func (p *Parser) ifStatement() Statement {
 		Cond: cond,
 		Then: then,
 		Else: elseStmt,
+	}
+}
+
+func (p *Parser) whileStatement() Statement {
+	p.consume(scanner.LEFT_PAREN, "Expect '(' after 'if'.")
+	cond := p.expression()
+	p.consume(scanner.RIGHT_PAREN, "Expect ')' after if condition.")
+	body := p.statement()
+	return &WhileStatement{
+		Cond: cond,
+		Body: body,
 	}
 }
 
