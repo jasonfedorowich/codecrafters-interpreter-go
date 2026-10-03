@@ -22,19 +22,27 @@ func TestEnvSuite(t *testing.T) {
 func (es *EnvSuite) TestPutAndGet() {
 	es.Run("test get after put", func() {
 		es.e.Put("a", 1.0)
-		es.Equal(1.0, es.e.Get("a"))
+		v, ok := es.e.Get("a")
+		es.True(ok)
+		es.Equal(1.0, v)
 	})
 	es.Run("test put overwrites existing value", func() {
 		es.e.Put("a", 1.0)
 		es.e.Put("a", "hello")
-		es.Equal("hello", es.e.Get("a"))
+		v, ok := es.e.Get("a")
+		es.True(ok)
+		es.Equal("hello", v)
 	})
-	es.Run("test get missing key returns nil", func() {
-		es.Nil(es.e.Get("missing"))
+	es.Run("test get missing key", func() {
+		v, ok := es.e.Get("missing")
+		es.False(ok)
+		es.Nil(v)
 	})
 	es.Run("test put nil value", func() {
 		es.e.Put("a", nil)
-		es.Nil(es.e.Get("a"))
+		v, ok := es.e.Get("a")
+		es.True(ok)
+		es.Nil(v)
 		es.True(es.e.Contains("a"))
 	})
 }
@@ -74,11 +82,57 @@ func (es *EnvSuite) TestAssign() {
 		es.e.Put("a", 1.0)
 		err := es.e.Assign("a", 2.0)
 		es.NoError(err)
-		es.Equal(2.0, es.e.Get("a"))
+		v, _ := es.e.Get("a")
+		es.Equal(2.0, v)
 	})
 	es.Run("test assign missing key returns error", func() {
 		err := es.e.Assign("a", 2.0)
 		es.EqualError(err, "key does not exist: a")
 		es.False(es.e.Contains("a"))
+	})
+}
+
+func (es *EnvSuite) TestWrappedEnv() {
+	es.Run("test get falls back to enclosing env", func() {
+		es.e.Put("a", 1.0)
+		inner := NewWrappedEnv(es.e)
+		v, ok := inner.Get("a")
+		es.True(ok)
+		es.Equal(1.0, v)
+	})
+	es.Run("test inner put shadows enclosing env", func() {
+		es.e.Put("a", 1.0)
+		inner := NewWrappedEnv(es.e)
+		inner.Put("a", 2.0)
+		v, _ := inner.Get("a")
+		es.Equal(2.0, v)
+		v, _ = es.e.Get("a")
+		es.Equal(1.0, v)
+	})
+	es.Run("test inner put not visible in enclosing env", func() {
+		inner := NewWrappedEnv(es.e)
+		inner.Put("a", 1.0)
+		_, ok := es.e.Get("a")
+		es.False(ok)
+	})
+	es.Run("test assign updates enclosing env", func() {
+		es.e.Put("a", 1.0)
+		inner := NewWrappedEnv(es.e)
+		err := inner.Assign("a", 2.0)
+		es.NoError(err)
+		es.False(inner.Contains("a"))
+		v, _ := es.e.Get("a")
+		es.Equal(2.0, v)
+	})
+	es.Run("test assign missing key in any env returns error", func() {
+		inner := NewWrappedEnv(es.e)
+		err := inner.Assign("a", 2.0)
+		es.EqualError(err, "key does not exist: a")
+	})
+	es.Run("test get missing key in any env", func() {
+		inner := NewWrappedEnv(NewWrappedEnv(es.e))
+		v, ok := inner.Get("a")
+		es.False(ok)
+		es.Nil(v)
 	})
 }

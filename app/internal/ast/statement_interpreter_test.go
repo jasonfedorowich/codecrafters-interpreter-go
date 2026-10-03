@@ -112,5 +112,14 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		statements, _ := parser.Parse()
 		_ = is.interpreter.InterpretStatements(statements)
 	})
+	is.Run("test scopes", func() {
+		is.p.EXPECT().Print(gomock.Any()).AnyTimes()
+		tokenizer := scanner.NewTokenizer("var bar = \"global bar\";\nvar world = \"global world\";\nvar hello = \"global hello\";\n{\n  var bar = \"outer bar\";\n  var world = \"outer world\";\n  {\n    var bar = \"inner bar\";\n    print bar;\n    print world;\n    print hello;\n  }\n  print bar;\n  print world;\n  print hello;\n}\nprint bar;\nprint world;\nprint hello;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
 
 }

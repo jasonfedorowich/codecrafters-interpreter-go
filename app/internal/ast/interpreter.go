@@ -137,6 +137,7 @@ func (i *Interpreter) VisitAssignmentExpr(expr *parse.AssignmentExpr) any {
 	err := i.e.Assign(expr.Name.Lexeme, e)
 	if err != nil {
 		i.eh.Error(70, "Undefined variable: %s", expr.Name.Lexeme)
+		fmt.Printf("[line %d]", expr.Name.Line)
 		return nil
 	}
 	return e
@@ -262,7 +263,7 @@ func (i *Interpreter) isBool(e any) bool {
 }
 
 func (i *Interpreter) VisitIdentifierExpr(ie *parse.IdentifierExpr) any {
-	v, ok := i.e.CheckAndGet(ie.Name.Lexeme)
+	v, ok := i.e.Get(ie.Name.Lexeme)
 	if !ok {
 		i.eh.Error(70, "Undefined variable '%s'", ie.Name.Lexeme)
 		return nil

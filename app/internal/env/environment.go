@@ -41,14 +41,15 @@ func (e *Env) CheckAndGet(key string) (v any, ok bool) {
 	return
 }
 
-func (e *Env) Get(key string) any {
+func (e *Env) Get(key string) (any, bool) {
 	if e.Contains(key) {
-		return e.values[key]
+		v, ok := e.values[key]
+		return v, ok
 	}
 	if e.e != nil {
 		return e.e.Get(key)
 	}
-	return nil
+	return nil, false
 }
 
 func (e *Env) Put(key string, value any) {
