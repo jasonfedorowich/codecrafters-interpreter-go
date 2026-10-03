@@ -55,6 +55,8 @@ func (p *Parser) statement() Statement {
 		return p.printStatement()
 	} else if p.match(scanner.LEFT_BRACE) {
 		return p.block()
+	} else if p.match(scanner.IF) {
+		return p.ifStatement()
 	}
 	return p.expressionStatement()
 }
@@ -88,6 +90,22 @@ func (p *Parser) printStatement() Statement {
 	}
 	return &PrintStatement{
 		E: e,
+	}
+}
+
+func (p *Parser) ifStatement() Statement {
+	p.consume(scanner.LEFT_PAREN, "Expect '(' after 'if'.")
+	cond := p.expression()
+	p.consume(scanner.RIGHT_PAREN, "Expect ')' after if condition.")
+	then := p.statement()
+	var elseStmt Statement
+	if p.match(scanner.ELSE) {
+		elseStmt = p.statement()
+	}
+	return &IfStatement{
+		Cond: cond,
+		Then: then,
+		Else: elseStmt,
 	}
 }
 

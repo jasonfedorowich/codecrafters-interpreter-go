@@ -38,3 +38,13 @@ type BlockStatement struct {
 func (b *BlockStatement) Accept(visitor Visitor) any {
 	return visitor.VisitBlockStatement(b)
 }
+
+type IfStatement struct {
+	Cond Expr
+	Then Statement
+	Else Statement
+}
+
+func (i *IfStatement) Accept(visitor Visitor) any {
+	return visitor.VisitIfStatement(i)
+}

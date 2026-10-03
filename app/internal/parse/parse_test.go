@@ -145,4 +145,12 @@ func (ps *ParseSuite) TestParser() {
 		ps.Assert().IsType(&BlockStatement{}, expr[0])
 		ps.Equal(0, err)
 	})
+	ps.Run("parse if statement", func() {
+		tokenizer := scanner.NewTokenizer("if (true) {print 1;}")
+		tokens, _ := tokenizer.Tokenize()
+		parser := NewParser(tokens, false)
+		expr, err := parser.Parse()
+		ps.Assert().IsType(&IfStatement{}, expr[0])
+		ps.Equal(0, err)
+	})
 }

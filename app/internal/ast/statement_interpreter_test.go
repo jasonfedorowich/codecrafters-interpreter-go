@@ -121,5 +121,14 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		err := is.interpreter.InterpretStatements(statements)
 		is.Assert().Equal(0, err)
 	})
+	is.Run("test if statement", func() {
+		is.p.EXPECT().Print("1").Times(1)
+		tokenizer := scanner.NewTokenizer("if (true) {print 1;}")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
 
 }

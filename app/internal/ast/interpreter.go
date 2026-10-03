@@ -132,6 +132,15 @@ func (i *Interpreter) VisitUnaryExpr(expr *parse.UnaryExpr) any {
 	}
 }
 
+func (i *Interpreter) VisitIfStatement(ifStmt *parse.IfStatement) any {
+	if i.isBool(i.evaluate(ifStmt.Cond)) {
+		return i.evaluate(ifStmt.Then)
+	} else if ifStmt.Else != nil {
+		return i.evaluate(ifStmt.Else)
+	}
+	return nil
+}
+
 func (i *Interpreter) VisitAssignmentExpr(expr *parse.AssignmentExpr) any {
 	e := i.evaluate(expr.Value)
 	err := i.e.Assign(expr.Name.Lexeme, e)

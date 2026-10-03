@@ -69,4 +69,5 @@ type Visitor interface {
 	VisitVarStatement(v *VarStatement) any
 	VisitAssignmentExpr(ae *AssignmentExpr) any
 	VisitBlockStatement(b *BlockStatement) any
+	VisitIfStatement(i *IfStatement) any
 }
