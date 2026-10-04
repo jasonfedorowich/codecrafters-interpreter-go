@@ -315,7 +315,42 @@ func (p *Parser) unary() Expr {
 			Operator: pr,
 		}
 	}
-	return p.primary()
+	return p.call()
+}
+
+func (p *Parser) call() Expr {
+	e := p.primary()
+
+	for {
+		if p.match(scanner.LEFT_PAREN) {
+			e = p.finishCall(e)
+		} else {
+			break
+		}
+	}
+	return e
+}
+
+func (p *Parser) finishCall(e Expr) Expr {
+	var args []Expr
+	if !p.check(scanner.RIGHT_PAREN) {
+		for !p.isAtEnd() {
+			if len(args) >= 255 {
+				p.eh.Error(65, "[line %d] Can't have more than 255 arguments.", p.peek().Line)
+			}
+			args = append(args, p.expression())
+			if !p.match(scanner.COMMA) {
+				break
+			}
+		}
+	}
+
+	t := p.consume(scanner.RIGHT_PAREN, "Expect ')' after arguments.")
+	return &CallExpr{
+		Callee:    e,
+		Arguments: args,
+		Right:     t,
+	}
 }
 
 func (p *Parser) primary() Expr {

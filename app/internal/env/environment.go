@@ -1,15 +1,21 @@
 package env
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Env struct {
 	values map[string]any
 	e      *Env
 }
 
-func NewEnv() *Env {
+func NewEnv(nativeFunctions map[string]any) *Env {
+	values := make(map[string]any)
+	for key, value := range nativeFunctions {
+		values[key] = value
+	}
 	return &Env{
-		values: make(map[string]any),
+		values: values,
 	}
 }
 

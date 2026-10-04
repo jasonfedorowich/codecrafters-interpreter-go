@@ -68,6 +68,16 @@ func (le *LogicalExpr) Accept(visitor Visitor) any {
 	return visitor.VisitLogicalExpr(le)
 }
 
+type CallExpr struct {
+	Callee    Expr
+	Arguments []Expr
+	Right     *scanner.Token
+}
+
+func (ce *CallExpr) Accept(visitor Visitor) any {
+	return visitor.VisitCallExpr(ce)
+}
+
 type Visitor interface {
 	VisitBinaryExpr(expr *BinaryExpr) any
 	VisitLiteralExpr(expr *LiteralExpr) any
@@ -82,4 +92,5 @@ type Visitor interface {
 	VisitIfStatement(i *IfStatement) any
 	VisitLogicalExpr(le *LogicalExpr) any
 	VisitWhileStatement(i *WhileStatement) any
+	VisitCallExpr(ce *CallExpr) any
 }

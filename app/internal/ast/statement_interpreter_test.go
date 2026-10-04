@@ -25,7 +25,7 @@ func (is *StatementInterpreterTestSuite) SetupSubTest() {
 	is.interpreter = &Interpreter{
 		eh: &error_code.ErrorHandler{},
 		p:  is.p,
-		e:  env.NewEnv(),
+		e:  env.NewEnv(loadNativeFunctions()),
 	}
 }
 
@@ -152,6 +152,15 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 	is.Run("for statement", func() {
 		is.p.EXPECT().Print(gomock.Any()).AnyTimes()
 		tokenizer := scanner.NewTokenizer("for (var i = 0; i < 3; i = i + 1) print i;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
+	is.Run("native function call", func() {
+		is.p.EXPECT().Print(gomock.Any()).AnyTimes()
+		tokenizer := scanner.NewTokenizer("print clock();")
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, false)
 		statements, _ := parser.Parse()

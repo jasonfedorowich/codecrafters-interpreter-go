@@ -35,7 +35,7 @@ func NewInterpreter() *Interpreter {
 	return &Interpreter{
 		eh: &error_code.ErrorHandler{},
 		p:  &printer{},
-		e:  env.NewEnv(),
+		e:  env.NewEnv(loadNativeFunctions()),
 	}
 }
 
@@ -65,6 +65,24 @@ func (i *Interpreter) InterpretExpr(expr parse.Expr) (any, int) {
 
 func (i *Interpreter) InError() bool {
 	return i.eh.InError()
+}
+
+func (i *Interpreter) VisitCallExpr(expr *parse.CallExpr) any {
+	f := i.evaluate(expr.Callee)
+	var args []any
+	for _, a := range expr.Arguments {
+		args = append(args, i.evaluate(a))
+	}
+	function, ok := f.(Callable)
+	if !ok {
+		i.eh.Error(70, "Can only call functions and classes.")
+		return nil
+	}
+	if function.arity() != len(args) {
+		i.eh.Error(70, "Wrong number of arguments.")
+		return nil
+	}
+	return function.call(i, args)
 }
 
 func (i *Interpreter) VisitLogicalExpr(expr *parse.LogicalExpr) any {
