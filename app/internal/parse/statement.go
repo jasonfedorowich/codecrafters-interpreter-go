@@ -57,3 +57,13 @@ type WhileStatement struct {
 func (i *WhileStatement) Accept(visitor Visitor) any {
 	return visitor.VisitWhileStatement(i)
 }
+
+type FuncStatement struct {
+	Name   *scanner.Token
+	Params []*scanner.Token
+	Body   *BlockStatement
+}
+
+func (f *FuncStatement) Accept(visitor Visitor) any {
+	return visitor.VisitFuncStatement(f)
+}

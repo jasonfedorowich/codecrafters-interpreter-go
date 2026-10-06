@@ -67,6 +67,11 @@ func (i *Interpreter) InError() bool {
 	return i.eh.InError()
 }
 
+func (i *Interpreter) VisitFuncStatement(f *parse.FuncStatement) any {
+	i.e.Put(f.Name.Lexeme, newFunction(f))
+	return nil
+}
+
 func (i *Interpreter) VisitCallExpr(expr *parse.CallExpr) any {
 	f := i.evaluate(expr.Callee)
 	var args []any

@@ -32,6 +32,8 @@ func (p *Parser) Parse() ([]Statement, int) {
 func (p *Parser) declaration() Statement {
 	if p.match(scanner.VAR) {
 		return p.varDeclaration()
+	} else if p.match(scanner.FUN) {
+		return p.funcDeclaration()
 	}
 	return p.statement()
 }
@@ -50,6 +52,28 @@ func (p *Parser) varDeclaration() Statement {
 		Value: expr}
 }
 
+func (p *Parser) funcDeclaration() Statement {
+	name := p.consume(scanner.IDENTIFIER, "Expect function name.")
+	p.consume(scanner.LEFT_PAREN, "Expect '(' after function name.")
+	var params []*scanner.Token
+	for !p.check(scanner.RIGHT_PAREN) && !p.isAtEnd() {
+		if len(params) >= 255 {
+			p.eh.Error(66, "[line %d] Cannot have more than 255 parameters.", p.peek().Line)
+			return nil
+		}
+		params = append(params, p.consume(scanner.IDENTIFIER, "Expect parameter name."))
+		if !p.check(scanner.RIGHT_PAREN) && !p.isAtEnd() {
+			p.consume(scanner.COMMA, "Expect ',' between parameters.")
+		}
+	}
+
+	p.consume(scanner.RIGHT_PAREN, "Expect ')' after parameters.")
+	p.consume(scanner.LEFT_BRACE, "Expect '{' before function body.")
+	body := p.block()
+
+	return &FuncStatement{Name: name, Params: params, Body: body}
+}
+
 func (p *Parser) statement() Statement {
 	if p.match(scanner.PRINT) {
 		return p.printStatement()
@@ -65,7 +89,7 @@ func (p *Parser) statement() Statement {
 	return p.expressionStatement()
 }
 
-func (p *Parser) block() Statement {
+func (p *Parser) block() *BlockStatement {
 	var statements []Statement
 	for !p.check(scanner.RIGHT_BRACE) && !p.isAtEnd() {
 		statements = append(statements, p.declaration())

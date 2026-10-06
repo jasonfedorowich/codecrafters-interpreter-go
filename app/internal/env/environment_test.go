@@ -12,7 +12,7 @@ type EnvSuite struct {
 }
 
 func (es *EnvSuite) SetupSubTest() {
-	es.e = NewEnv()
+	es.e = NewEnv(nil)
 }
 
 func TestEnvSuite(t *testing.T) {

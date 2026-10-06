@@ -93,4 +93,5 @@ type Visitor interface {
 	VisitLogicalExpr(le *LogicalExpr) any
 	VisitWhileStatement(i *WhileStatement) any
 	VisitCallExpr(ce *CallExpr) any
+	VisitFuncStatement(f *FuncStatement) any
 }
