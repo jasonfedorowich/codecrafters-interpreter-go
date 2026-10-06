@@ -53,5 +53,5 @@ func (f *function) arity() int {
 }
 
 func (f *function) String() string {
-	return fmt.Sprintf("<fn %s>", f.statementFn.Name)
+	return fmt.Sprintf("<fn %s>", f.statementFn.Name.Lexeme)
 }
