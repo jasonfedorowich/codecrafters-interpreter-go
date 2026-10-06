@@ -196,4 +196,12 @@ func (ps *ParseSuite) TestParser() {
 		ps.Assert().IsType(&FuncStatement{}, expr[0])
 		ps.Equal(0, err)
 	})
+	ps.Run("parse function with return", func() {
+		tokenizer := scanner.NewTokenizer("fun weather(a, b, c) {\n  return a;\n}")
+		tokens, _ := tokenizer.Tokenize()
+		parser := NewParser(tokens, false)
+		expr, err := parser.Parse()
+		ps.Assert().IsType(&FuncStatement{}, expr[0])
+		ps.Equal(0, err)
+	})
 }

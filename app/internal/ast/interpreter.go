@@ -72,10 +72,11 @@ func (i *Interpreter) VisitFuncStatement(f *parse.FuncStatement) any {
 	return nil
 }
 func (i *Interpreter) VisitReturnStmt(r *parse.ReturnStmt) any {
+	var e any
 	if r.E != nil {
-		e := i.evaluate(r.E)
-		panic(&returnValue{e})
+		e = i.evaluate(r.E)
 	}
+	panic(&returnValue{e})
 	return nil
 }
 func (i *Interpreter) VisitCallExpr(expr *parse.CallExpr) any {
