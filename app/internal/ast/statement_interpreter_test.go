@@ -178,4 +178,14 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		is.Assert().Equal(0, err)
 	})
 
+	is.Run("function return", func() {
+		is.p.EXPECT().Print(gomock.Any()).AnyTimes()
+		tokenizer := scanner.NewTokenizer("fun foo() { return 1; }\n print foo();")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
+
 }

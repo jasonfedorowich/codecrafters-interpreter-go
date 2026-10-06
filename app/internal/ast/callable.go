@@ -8,6 +8,14 @@ import (
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/parse"
 )
 
+type returnValue struct {
+	v any
+}
+
+func (r *returnValue) Error() string {
+	return fmt.Sprintf("return: %v", r.v)
+}
+
 type Callable interface {
 	call(interpreter *Interpreter, args []any) any
 	arity() int
@@ -40,12 +48,22 @@ func newFunction(f *parse.FuncStatement) Callable {
 	return &function{statementFn: f}
 }
 
-func (f *function) call(interpreter *Interpreter, args []any) any {
+func (f *function) call(interpreter *Interpreter, args []any) (r any) {
+	defer func() {
+		if e := recover(); e != nil {
+			if v, ok := e.(*returnValue); ok {
+				r = v.v
+				return
+			}
+			panic(e)
+		}
+	}()
 	e := env.NewWrappedEnv(interpreter.e)
 	for i, a := range args {
 		e.Put(f.statementFn.Params[i].Lexeme, a)
 	}
-	return interpreter.blockStatement(f.statementFn.Body.Statements, e)
+	interpreter.blockStatement(f.statementFn.Body.Statements, e)
+	return nil
 }
 
 func (f *function) arity() int {

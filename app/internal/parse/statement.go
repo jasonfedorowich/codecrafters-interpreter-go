@@ -67,3 +67,11 @@ type FuncStatement struct {
 func (f *FuncStatement) Accept(visitor Visitor) any {
 	return visitor.VisitFuncStatement(f)
 }
+
+type ReturnStmt struct {
+	E Expr
+}
+
+func (r *ReturnStmt) Accept(visitor Visitor) any {
+	return visitor.VisitReturnStmt(r)
+}

@@ -71,7 +71,13 @@ func (i *Interpreter) VisitFuncStatement(f *parse.FuncStatement) any {
 	i.e.Put(f.Name.Lexeme, newFunction(f))
 	return nil
 }
-
+func (i *Interpreter) VisitReturnStmt(r *parse.ReturnStmt) any {
+	if r.E != nil {
+		e := i.evaluate(r.E)
+		panic(&returnValue{e})
+	}
+	return nil
+}
 func (i *Interpreter) VisitCallExpr(expr *parse.CallExpr) any {
 	f := i.evaluate(expr.Callee)
 	var args []any

@@ -85,6 +85,8 @@ func (p *Parser) statement() Statement {
 		return p.whileStatement()
 	} else if p.match(scanner.FOR) {
 		return p.forStatement()
+	} else if p.match(scanner.RETURN) {
+		return p.returnStatement()
 	}
 	return p.expressionStatement()
 }
@@ -464,4 +466,15 @@ func (p *Parser) consume(tokenType scanner.TokenType, errorMessage string) *scan
 	}
 	p.eh.Error(65, "[line %d] %s", p.peek().Line, errorMessage)
 	return nil
+}
+
+func (p *Parser) returnStatement() Statement {
+	var e Expr
+	if !p.check(scanner.SEMICOLON) {
+		e = p.expression()
+	}
+	p.consume(scanner.SEMICOLON, "Expect ';' after return value")
+	return &ReturnStmt{
+		E: e,
+	}
 }
