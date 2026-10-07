@@ -42,10 +42,12 @@ func loadNativeFunctions() map[string]any {
 
 type function struct {
 	statementFn *parse.FuncStatement
+	closure     *env.Env
 }
 
-func newFunction(f *parse.FuncStatement) Callable {
-	return &function{statementFn: f}
+func newFunction(f *parse.FuncStatement, e *env.Env) Callable {
+	return &function{statementFn: f,
+		closure: e}
 }
 
 func (f *function) call(interpreter *Interpreter, args []any) (r any) {
@@ -58,7 +60,7 @@ func (f *function) call(interpreter *Interpreter, args []any) (r any) {
 			panic(e)
 		}
 	}()
-	e := env.NewWrappedEnv(interpreter.e)
+	e := env.NewWrappedEnv(f.closure)
 	for i, a := range args {
 		e.Put(f.statementFn.Params[i].Lexeme, a)
 	}

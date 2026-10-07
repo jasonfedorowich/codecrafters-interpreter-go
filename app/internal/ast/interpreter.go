@@ -68,7 +68,7 @@ func (i *Interpreter) InError() bool {
 }
 
 func (i *Interpreter) VisitFuncStatement(f *parse.FuncStatement) any {
-	i.e.Put(f.Name.Lexeme, newFunction(f))
+	i.e.Put(f.Name.Lexeme, newFunction(f, i.e))
 	return nil
 }
 func (i *Interpreter) VisitReturnStmt(r *parse.ReturnStmt) any {
