@@ -26,16 +26,21 @@ func (p *printer) Print(a any) {
 }
 
 type Interpreter struct {
-	eh *error_code.ErrorHandler
-	p  Printer
-	e  *env.Env
+	eh      *error_code.ErrorHandler
+	p       Printer
+	e       *env.Env
+	locals  map[parse.Expr]int
+	globals *env.Env
 }
 
 func NewInterpreter() *Interpreter {
+	g := env.NewEnv(loadNativeFunctions())
 	return &Interpreter{
-		eh: &error_code.ErrorHandler{},
-		p:  &printer{},
-		e:  env.NewEnv(loadNativeFunctions()),
+		eh:      &error_code.ErrorHandler{},
+		p:       &printer{},
+		e:       g,
+		locals:  make(map[parse.Expr]int),
+		globals: g,
 	}
 }
 
@@ -194,14 +199,19 @@ func (i *Interpreter) VisitIfStatement(ifStmt *parse.IfStatement) any {
 }
 
 func (i *Interpreter) VisitAssignmentExpr(expr *parse.AssignmentExpr) any {
-	e := i.evaluate(expr.Value)
-	err := i.e.Assign(expr.Name.Lexeme, e)
-	if err != nil {
-		i.eh.Error(70, "Undefined variable: %s", expr.Name.Lexeme)
-		fmt.Printf("[line %d]", expr.Name.Line)
-		return nil
+	value := i.evaluate(expr.Value)
+	d, ok := i.locals[expr]
+	if ok {
+		i.e.AssignAt(d, expr.Name, value)
+	} else {
+		err := i.globals.Assign(expr.Name.Lexeme, value)
+		if err != nil {
+			i.eh.Error(70, "Undefined variable: %s", expr.Name.Lexeme)
+			fmt.Printf("[line %d]", expr.Name.Line)
+			return nil
+		}
 	}
-	return e
+	return value
 }
 
 func (i *Interpreter) evaluate(expr parse.Expr) any {
@@ -324,12 +334,7 @@ func (i *Interpreter) isBool(e any) bool {
 }
 
 func (i *Interpreter) VisitIdentifierExpr(ie *parse.IdentifierExpr) any {
-	v, ok := i.e.Get(ie.Name.Lexeme)
-	if !ok {
-		i.eh.Error(70, "Undefined variable '%s'", ie.Name.Lexeme)
-		return nil
-	}
-	return v
+	return i.lookupVariable(ie.Name, ie)
 }
 
 func (i *Interpreter) VisitVarStatement(v *parse.VarStatement) any {
@@ -354,6 +359,23 @@ func (i *Interpreter) VisitPrintStatement(expr *parse.PrintStatement) any {
 	s := stringify(r)
 	i.p.Print(s)
 	return nil
+}
+
+func (i *Interpreter) resolve(expr parse.Expr, depth int) {
+	i.locals[expr] = depth
+}
+
+func (i *Interpreter) lookupVariable(name *scanner.Token, ie *parse.IdentifierExpr) any {
+	d, ok := i.locals[ie]
+	if !ok {
+		v, ok := i.e.Get(ie.Name.Lexeme)
+		if !ok {
+			i.eh.Error(70, "Undefined variable '%s'", ie.Name.Lexeme)
+			return nil
+		}
+		return v
+	}
+	return i.e.GetAt(d, name.Lexeme)
 }
 
 func stringify(a any) string {

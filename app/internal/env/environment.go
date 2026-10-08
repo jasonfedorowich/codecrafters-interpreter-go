@@ -2,6 +2,8 @@ package env
 
 import (
 	"fmt"
+
+	"github.com/codecrafters-io/interpreter-starter-go/app/internal/scanner"
 )
 
 type Env struct {
@@ -60,4 +62,20 @@ func (e *Env) Get(key string) (any, bool) {
 
 func (e *Env) Put(key string, value any) {
 	e.values[key] = value
+}
+
+func (e *Env) GetAt(d int, name string) any {
+	return e.ancestor(d).values[name]
+}
+
+func (e *Env) AssignAt(d int, name *scanner.Token, value any) {
+	e.ancestor(d).values[name.Lexeme] = value
+}
+
+func (e *Env) ancestor(d int) *Env {
+	env := e
+	for i := 0; i < d; i++ {
+		env = env.e
+	}
+	return env
 }

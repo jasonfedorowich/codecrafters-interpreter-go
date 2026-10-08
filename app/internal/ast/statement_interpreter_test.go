@@ -17,16 +17,21 @@ type StatementInterpreterTestSuite struct {
 	interpreter *Interpreter
 	ctrl        *gomock.Controller
 	p           *mocks.MockPrinter
+	resolver    *Resolver
 }
 
 func (is *StatementInterpreterTestSuite) SetupSubTest() {
 	is.ctrl = gomock.NewController(is.T())
 	is.p = mocks.NewMockPrinter(is.ctrl)
+	g := env.NewEnv(loadNativeFunctions())
 	is.interpreter = &Interpreter{
-		eh: &error_code.ErrorHandler{},
-		p:  is.p,
-		e:  env.NewEnv(loadNativeFunctions()),
+		eh:      &error_code.ErrorHandler{},
+		p:       is.p,
+		e:       g,
+		globals: g,
+		locals:  make(map[parse.Expr]int),
 	}
+	is.resolver = NewResolver(is.interpreter)
 }
 
 func (is *StatementInterpreterTestSuite) TearDownTest() {
@@ -155,6 +160,7 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, false)
 		statements, _ := parser.Parse()
+		is.resolver.ResolveStatements(statements)
 		err := is.interpreter.InterpretStatements(statements)
 		is.Assert().Equal(0, err)
 	})
