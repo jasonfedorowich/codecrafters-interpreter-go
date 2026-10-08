@@ -61,7 +61,7 @@ func (i *WhileStatement) Accept(visitor Visitor) any {
 type FuncStatement struct {
 	Name   *scanner.Token
 	Params []*scanner.Token
-	Body   *BlockStatement
+	Body   []Statement
 }
 
 func (f *FuncStatement) Accept(visitor Visitor) any {

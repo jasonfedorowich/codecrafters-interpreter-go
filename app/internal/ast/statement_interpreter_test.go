@@ -222,5 +222,36 @@ var variable = "global";
 		err := is.interpreter.InterpretStatements(statements)
 		is.Assert().Equal(0, err)
 	})
+	is.Run("test nested closure captures closest enclosing variable", func() {
+		is.p.EXPECT().Print("outer").Times(2)
+		tokenizer := scanner.NewTokenizer(`
+var x = "global";
+
+fun outer() {
+  var x = "outer";
+
+  fun middle() {
+    fun inner() {
+      print x;
+    }
+
+    inner();
+
+    var x = "middle";
+
+    inner();
+  }
+
+  middle();
+}
+
+outer();`)
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		is.resolver.ResolveStatements(statements)
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
 
 }

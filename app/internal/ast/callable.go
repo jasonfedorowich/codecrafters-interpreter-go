@@ -64,7 +64,7 @@ func (f *function) call(interpreter *Interpreter, args []any) (r any) {
 	for i, a := range args {
 		e.Put(f.statementFn.Params[i].Lexeme, a)
 	}
-	interpreter.blockStatement(f.statementFn.Body.Statements, e)
+	interpreter.blockStatement(f.statementFn.Body, e)
 	return nil
 }
 

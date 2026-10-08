@@ -78,7 +78,7 @@ func (p *Parser) statement() Statement {
 	if p.match(scanner.PRINT) {
 		return p.printStatement()
 	} else if p.match(scanner.LEFT_BRACE) {
-		return p.block()
+		return p.blockStatement()
 	} else if p.match(scanner.IF) {
 		return p.ifStatement()
 	} else if p.match(scanner.WHILE) {
@@ -91,14 +91,14 @@ func (p *Parser) statement() Statement {
 	return p.expressionStatement()
 }
 
-func (p *Parser) block() *BlockStatement {
+func (p *Parser) block() []Statement {
 	var statements []Statement
 	for !p.check(scanner.RIGHT_BRACE) && !p.isAtEnd() {
 		statements = append(statements, p.declaration())
 	}
 	p.consume(scanner.RIGHT_BRACE, "Expect '}' after block.")
 
-	return &BlockStatement{Statements: statements}
+	return statements
 }
 
 func (p *Parser) expressionStatement() Statement {
@@ -476,5 +476,11 @@ func (p *Parser) returnStatement() Statement {
 	p.consume(scanner.SEMICOLON, "Expect ';' after return value")
 	return &ReturnStmt{
 		E: e,
+	}
+}
+
+func (p *Parser) blockStatement() Statement {
+	return &BlockStatement{
+		Statements: p.block(),
 	}
 }

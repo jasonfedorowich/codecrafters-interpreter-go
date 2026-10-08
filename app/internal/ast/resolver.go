@@ -176,6 +176,6 @@ func (r *Resolver) resolveFunc(f *parse.FuncStatement) {
 		r.declare(param)
 		r.define(param)
 	}
-	r.resolveStatement(f.Body)
+	r.ResolveStatements(f.Body)
 	r.endScope()
 }
