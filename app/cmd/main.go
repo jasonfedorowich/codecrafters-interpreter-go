@@ -37,6 +37,8 @@ func main() {
 func runFile(fileName string) {
 	statements := parseExpr(fileName, false)
 	interpreter := ast.NewInterpreter()
+	resolver := ast.NewResolver(interpreter)
+	resolver.ResolveStatements(statements)
 	err := interpreter.InterpretStatements(statements)
 	if err != 0 {
 		os.Exit(err)
