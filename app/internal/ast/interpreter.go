@@ -368,7 +368,7 @@ func (i *Interpreter) resolve(expr parse.Expr, depth int) {
 func (i *Interpreter) lookupVariable(name *scanner.Token, ie *parse.IdentifierExpr) any {
 	d, ok := i.locals[ie]
 	if !ok {
-		v, ok := i.e.Get(ie.Name.Lexeme)
+		v, ok := i.globals.Get(ie.Name.Lexeme)
 		if !ok {
 			i.eh.Error(70, "Undefined variable '%s'", ie.Name.Lexeme)
 			return nil

@@ -115,6 +115,7 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, false)
 		statements, _ := parser.Parse()
+		is.resolver.ResolveStatements(statements)
 		_ = is.interpreter.InterpretStatements(statements)
 	})
 	is.Run("test scopes", func() {
@@ -199,6 +200,25 @@ func (is *StatementInterpreterTestSuite) TestStatementInterpreter() {
 		tokens, _ := tokenizer.Tokenize()
 		parser := parse.NewParser(tokens, false)
 		statements, _ := parser.Parse()
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
+	is.Run("test closure binds variable at declaration", func() {
+		is.p.EXPECT().Print("global").Times(2)
+		tokenizer := scanner.NewTokenizer(`
+var variable = "global";
+{
+  fun f() {
+    print variable;
+  }
+  f();
+  var variable = "local";
+  f();
+}`)
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		is.resolver.ResolveStatements(statements)
 		err := is.interpreter.InterpretStatements(statements)
 		is.Assert().Equal(0, err)
 	})
