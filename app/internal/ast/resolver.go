@@ -163,15 +163,15 @@ func (r *Resolver) declare(name *scanner.Token) {
 	if len(r.scopes) == 0 {
 		return
 	}
+	if _, ok := r.scopes[len(r.scopes)-1][name.Lexeme]; ok {
+		r.eh.Error(65, "Already a variable with this name in this scope.")
+		return
+	}
 	r.scopes[len(r.scopes)-1][name.Lexeme] = false
 }
 
 func (r *Resolver) define(name *scanner.Token) {
 	if len(r.scopes) == 0 {
-		return
-	}
-	if _, ok := r.scopes[len(r.scopes)-1][name.Lexeme]; ok {
-		r.eh.Error(65, "Already a variable with this name in this scope.")
 		return
 	}
 	r.scopes[len(r.scopes)-1][name.Lexeme] = true
