@@ -19,10 +19,11 @@ func NewResolver(i *Interpreter) *Resolver {
 	}
 }
 
-func (r *Resolver) ResolveStatements(statements []parse.Statement) {
+func (r *Resolver) ResolveStatements(statements []parse.Statement) int {
 	for _, statement := range statements {
 		statement.Accept(r)
 	}
+	return r.eh.ErrorCode
 }
 
 func (r *Resolver) resolveExpr(expr parse.Expr) {
