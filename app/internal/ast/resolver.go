@@ -68,7 +68,7 @@ func (r *Resolver) VisitIdentifierExpr(ie *parse.IdentifierExpr) any {
 	if len(r.scopes) != 0 {
 		v, ok := r.scopes[len(r.scopes)-1][ie.Name.Lexeme]
 		if ok && !v {
-			r.eh.Error(70, "Can't read local variable in its own initializer.")
+			r.eh.Error(65, "Can't read local variable in its own initializer.")
 		}
 	}
 	r.resolveLocal(ie, ie.Name)
