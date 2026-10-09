@@ -6,16 +6,23 @@ import (
 	"github.com/codecrafters-io/interpreter-starter-go/app/internal/scanner"
 )
 
+const (
+	IN_FUNC = iota
+	NO_FUNC
+)
+
 type Resolver struct {
 	i      *Interpreter
 	scopes []map[string]bool
 	eh     *error_code.ErrorHandler
+	fn     int
 }
 
 func NewResolver(i *Interpreter) *Resolver {
 	return &Resolver{
 		i:  i,
 		eh: &error_code.ErrorHandler{},
+		fn: NO_FUNC,
 	}
 }
 
@@ -129,11 +136,15 @@ func (r *Resolver) VisitCallExpr(ce *parse.CallExpr) any {
 func (r *Resolver) VisitFuncStatement(f *parse.FuncStatement) any {
 	r.declare(f.Name)
 	r.define(f.Name)
-	r.resolveFunc(f)
+	r.resolveFunc(f, IN_FUNC)
 	return nil
 }
 
 func (r *Resolver) VisitReturnStmt(re *parse.ReturnStmt) any {
+	if r.fn != IN_FUNC {
+		r.eh.Error(65, "Cannot return from top-level code.")
+		return nil
+	}
 	if re.E != nil {
 		r.resolveExpr(re.E)
 	}
@@ -159,6 +170,10 @@ func (r *Resolver) define(name *scanner.Token) {
 	if len(r.scopes) == 0 {
 		return
 	}
+	if _, ok := r.scopes[len(r.scopes)-1][name.Lexeme]; ok {
+		r.eh.Error(65, "Already a variable with this name in this scope.")
+		return
+	}
 	r.scopes[len(r.scopes)-1][name.Lexeme] = true
 }
 
@@ -171,7 +186,9 @@ func (r *Resolver) resolveLocal(expr parse.Expr, name *scanner.Token) {
 	}
 }
 
-func (r *Resolver) resolveFunc(f *parse.FuncStatement) {
+func (r *Resolver) resolveFunc(f *parse.FuncStatement, fn int) {
+	prev := r.fn
+	r.fn = fn
 	r.beginScope()
 	for _, param := range f.Params {
 		r.declare(param)
@@ -179,4 +196,5 @@ func (r *Resolver) resolveFunc(f *parse.FuncStatement) {
 	}
 	r.ResolveStatements(f.Body)
 	r.endScope()
+	r.fn = prev
 }
