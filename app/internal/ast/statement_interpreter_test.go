@@ -254,4 +254,14 @@ outer();`)
 		is.Assert().Equal(0, err)
 	})
 
+	is.Run("test class", func() {
+		is.p.EXPECT().Print("Circus").AnyTimes()
+		tokenizer := scanner.NewTokenizer("class Circus {} print Circus;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
+
 }

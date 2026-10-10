@@ -72,6 +72,13 @@ func (i *Interpreter) InError() bool {
 	return i.eh.InError()
 }
 
+func (i *Interpreter) VisitClassStatement(c *parse.ClassStatement) any {
+	i.e.Put(c.Name.Lexeme, nil)
+	cl := newClass(c.Name.Lexeme)
+	i.e.Assign(c.Name.Lexeme, cl)
+	return nil
+}
+
 func (i *Interpreter) VisitFuncStatement(f *parse.FuncStatement) any {
 	i.e.Put(f.Name.Lexeme, newFunction(f, i.e))
 	return nil

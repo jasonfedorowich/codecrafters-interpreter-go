@@ -75,3 +75,12 @@ type ReturnStmt struct {
 func (r *ReturnStmt) Accept(visitor Visitor) any {
 	return visitor.VisitReturnStmt(r)
 }
+
+type ClassStatement struct {
+	Name       *scanner.Token
+	Statements []*FuncStatement
+}
+
+func (c *ClassStatement) Accept(visitor Visitor) any {
+	return visitor.VisitClassStatement(c)
+}

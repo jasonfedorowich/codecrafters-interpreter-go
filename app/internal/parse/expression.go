@@ -95,4 +95,5 @@ type Visitor interface {
 	VisitCallExpr(ce *CallExpr) any
 	VisitFuncStatement(f *FuncStatement) any
 	VisitReturnStmt(r *ReturnStmt) any
+	VisitClassStatement(c *ClassStatement) any
 }

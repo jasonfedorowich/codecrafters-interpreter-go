@@ -47,6 +47,12 @@ func (r *Resolver) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 	return nil
 }
 
+func (r *Resolver) VisitClassStatement(c *parse.ClassStatement) any {
+	r.declare(c.Name)
+	r.define(c.Name)
+	return nil
+}
+
 func (r *Resolver) VisitLiteralExpr(expr *parse.LiteralExpr) any {
 	return nil
 }

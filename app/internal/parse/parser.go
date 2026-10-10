@@ -33,7 +33,9 @@ func (p *Parser) declaration() Statement {
 	if p.match(scanner.VAR) {
 		return p.varDeclaration()
 	} else if p.match(scanner.FUN) {
-		return p.funcDeclaration()
+		return p.funcDeclaration("function")
+	} else if p.match(scanner.CLASS) {
+		return p.classDeclaration()
 	}
 	return p.statement()
 }
@@ -52,7 +54,7 @@ func (p *Parser) varDeclaration() Statement {
 		Value: expr}
 }
 
-func (p *Parser) funcDeclaration() Statement {
+func (p *Parser) funcDeclaration(fnType string) *FuncStatement {
 	name := p.consume(scanner.IDENTIFIER, "Expect function name.")
 	p.consume(scanner.LEFT_PAREN, "Expect '(' after function name.")
 	var params []*scanner.Token
@@ -482,5 +484,19 @@ func (p *Parser) returnStatement() Statement {
 func (p *Parser) blockStatement() Statement {
 	return &BlockStatement{
 		Statements: p.block(),
+	}
+}
+
+func (p *Parser) classDeclaration() Statement {
+	name := p.consume(scanner.IDENTIFIER, "Expect class name.")
+	p.consume(scanner.LEFT_BRACE, "Expect '{' before class body.")
+	var statements []*FuncStatement
+	for !p.isAtEnd() && !p.check(scanner.RIGHT_BRACE) {
+		statements = append(statements, p.funcDeclaration("method"))
+	}
+	p.consume(scanner.RIGHT_BRACE, "Expect '}' after class body.")
+	return &ClassStatement{
+		Name:       name,
+		Statements: statements,
 	}
 }
