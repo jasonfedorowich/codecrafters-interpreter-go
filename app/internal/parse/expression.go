@@ -78,6 +78,25 @@ func (ce *CallExpr) Accept(visitor Visitor) any {
 	return visitor.VisitCallExpr(ce)
 }
 
+type GetExpr struct {
+	Object Expr
+	Name   *scanner.Token
+}
+
+func (ge *GetExpr) Accept(visitor Visitor) any {
+	return visitor.VisitGetExpr(ge)
+}
+
+type SetExpr struct {
+	Object Expr
+	Name   *scanner.Token
+	Value  Expr
+}
+
+func (se *SetExpr) Accept(visitor Visitor) any {
+	return visitor.VisitSetExpr(se)
+}
+
 type Visitor interface {
 	VisitBinaryExpr(expr *BinaryExpr) any
 	VisitLiteralExpr(expr *LiteralExpr) any
@@ -96,4 +115,6 @@ type Visitor interface {
 	VisitFuncStatement(f *FuncStatement) any
 	VisitReturnStmt(r *ReturnStmt) any
 	VisitClassStatement(c *ClassStatement) any
+	VisitGetExpr(ge *GetExpr) any
+	VisitSetExpr(se *SetExpr) any
 }

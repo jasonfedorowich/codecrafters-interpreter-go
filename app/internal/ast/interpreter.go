@@ -72,6 +72,33 @@ func (i *Interpreter) InError() bool {
 	return i.eh.InError()
 }
 
+func (i *Interpreter) VisitSetExpr(se *parse.SetExpr) any {
+	obj := i.evaluate(se.Object)
+	v, ok := obj.(*instance)
+	if ok {
+		value := i.evaluate(se.Value)
+		v.set(se.Name, value)
+		return value
+	}
+	i.eh.Error(70, "Only instances have properties.")
+	return nil
+}
+
+func (i *Interpreter) VisitGetExpr(ge *parse.GetExpr) any {
+	obj := i.evaluate(ge.Object)
+	v, ok := obj.(*instance)
+	if ok {
+		r, err := v.get(ge.Name)
+		if err != nil {
+			i.eh.FromError(70, err)
+			return nil
+		}
+		return r
+	}
+	i.eh.Error(70, "Only instances have properties.")
+	return nil
+}
+
 func (i *Interpreter) VisitClassStatement(c *parse.ClassStatement) any {
 	i.e.Put(c.Name.Lexeme, nil)
 	cl := newClass(c.Name.Lexeme)

@@ -17,3 +17,8 @@ func (eh *ErrorHandler) Error(errorCode int, format string, a ...any) {
 	eh.ErrorCode = errorCode
 	fmt.Fprintf(os.Stderr, format, a...)
 }
+
+func (eh *ErrorHandler) FromError(errorCode int, err error) {
+	eh.ErrorCode = errorCode
+	fmt.Fprint(os.Stderr, err.Error())
+}

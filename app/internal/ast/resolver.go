@@ -41,6 +41,17 @@ func (r *Resolver) resolveStatement(statement parse.Statement) {
 	statement.Accept(r)
 }
 
+func (r *Resolver) VisitSetExpr(se *parse.SetExpr) any {
+	r.resolveExpr(se.Value)
+	r.resolveExpr(se.Object)
+	return nil
+}
+
+func (r *Resolver) VisitGetExpr(ge *parse.GetExpr) any {
+	r.resolveExpr(ge.Object)
+	return nil
+}
+
 func (r *Resolver) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 	r.resolveExpr(expr.Left)
 	r.resolveExpr(expr.Right)

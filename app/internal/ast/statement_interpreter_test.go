@@ -264,4 +264,16 @@ outer();`)
 		is.Assert().Equal(0, err)
 	})
 
+	is.Run("test class set and get", func() {
+		is.p.EXPECT().Print("Ship details:").AnyTimes()
+		is.p.EXPECT().Print("Millennium Falcon").AnyTimes()
+		is.p.EXPECT().Print("75.5").AnyTimes()
+		tokenizer := scanner.NewTokenizer("class Spaceship {}\nvar falcon = Spaceship();\n\nfalcon.name = \"Millennium Falcon\";\nfalcon.speed = 75.5;\n\nprint \"Ship details:\";\nprint falcon.name;\nprint falcon.speed;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
+
 }

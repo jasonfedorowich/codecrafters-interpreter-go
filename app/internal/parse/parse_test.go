@@ -213,4 +213,23 @@ func (ps *ParseSuite) TestParser() {
 		ps.Assert().IsType(&ClassStatement{}, expr[0])
 		ps.Equal(0, err)
 	})
+
+	ps.Run("parse class with field", func() {
+		tokenizer := scanner.NewTokenizer("class Spaceship {}\nvar falcon = Spaceship();\nprint falcon.stuff;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := NewParser(tokens, false)
+		expr, err := parser.Parse()
+		ps.Assert().IsType(&ClassStatement{}, expr[0])
+		ps.Equal(0, err)
+	})
+
+	ps.Run("parse class with set", func() {
+		tokenizer := scanner.NewTokenizer("class Spaceship {}\nvar falcon = Spaceship();\n falcon.stuff = 1;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := NewParser(tokens, false)
+		expr, err := parser.Parse()
+		ps.Assert().IsType(&ClassStatement{}, expr[0])
+		ps.Equal(0, err)
+	})
+
 }

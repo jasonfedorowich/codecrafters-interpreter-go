@@ -1,11 +1,18 @@
 package ast
 
+import (
+	"fmt"
+
+	"github.com/codecrafters-io/interpreter-starter-go/app/internal/scanner"
+)
+
 type class struct {
 	name string
 }
 
 type instance struct {
-	cl *class
+	cl     *class
+	fields map[string]any
 }
 
 func newClass(name string) *class {
@@ -16,7 +23,8 @@ func newClass(name string) *class {
 
 func newInstance(cl *class) *instance {
 	return &instance{
-		cl: cl,
+		cl:     cl,
+		fields: make(map[string]any),
 	}
 }
 
@@ -35,4 +43,15 @@ func (c *class) String() string {
 
 func (i *instance) String() string {
 	return i.cl.name + " instance"
+}
+
+func (i *instance) get(name *scanner.Token) (any, error) {
+	if v, ok := i.fields[name.Lexeme]; ok {
+		return v, nil
+	}
+	return nil, fmt.Errorf("Undefined property ' + %s + '.", name)
+}
+
+func (i *instance) set(name *scanner.Token, value any) {
+	i.fields[name.Lexeme] = value
 }

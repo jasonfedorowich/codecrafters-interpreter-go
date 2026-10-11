@@ -204,13 +204,23 @@ func (p *Parser) assignment() Expr {
 	if p.match(scanner.EQUAL) {
 		equals := p.prev()
 		rval := p.assignment()
-		if v, ok := e.(*IdentifierExpr); ok {
+		switch v := e.(type) {
+		case *IdentifierExpr:
 			return &AssignmentExpr{
 				Name:  v.Name,
 				Value: rval,
 			}
+		case *GetExpr:
+			return &SetExpr{
+				Object: v.Object,
+				Name:   v.Name,
+				Value: rval,
+			}
+		default:
+			p.eh.Error(65, "[line %d] Invalid assignment target.", equals.Line)
+			return nil
 		}
-		p.eh.Error(65, "[line %d] Invalid assignment target.", equals.Line)
+
 	}
 	return e
 }
@@ -352,6 +362,12 @@ func (p *Parser) call() Expr {
 	for {
 		if p.match(scanner.LEFT_PAREN) {
 			e = p.finishCall(e)
+		} else if p.match(scanner.DOT) {
+			name := p.consume(scanner.IDENTIFIER, "Expect property name after '.'.")
+			e = &GetExpr{
+				Object: e,
+				Name:   name,
+			}
 		} else {
 			break
 		}
