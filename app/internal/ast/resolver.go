@@ -162,7 +162,7 @@ func (r *Resolver) VisitFuncStatement(f *parse.FuncStatement) any {
 }
 
 func (r *Resolver) VisitReturnStmt(re *parse.ReturnStmt) any {
-	if r.fn != IN_FUNC {
+	if r.fn == NO_FUNC {
 		r.eh.Error(65, "Cannot return from top-level code.")
 		return nil
 	}

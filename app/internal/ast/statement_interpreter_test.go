@@ -286,4 +286,15 @@ outer();`)
 		is.Assert().Equal(0, err)
 	})
 
+	is.Run("test return self", func() {
+		is.p.EXPECT().Print("Foo").AnyTimes()
+		tokenizer := scanner.NewTokenizer("{\n  class Foo {\n    returnSelf() {\n      return Foo;\n    }\n  }\n\n  print Foo().returnSelf();  // expect: Foo\n}")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		is.resolver.ResolveStatements(statements)
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
+
 }
