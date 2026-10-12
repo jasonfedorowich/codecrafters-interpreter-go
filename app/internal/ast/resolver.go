@@ -9,6 +9,7 @@ import (
 const (
 	IN_FUNC = iota
 	NO_FUNC
+	IN_METHOD
 )
 
 type Resolver struct {
@@ -61,6 +62,9 @@ func (r *Resolver) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 func (r *Resolver) VisitClassStatement(c *parse.ClassStatement) any {
 	r.declare(c.Name)
 	r.define(c.Name)
+	for _, method := range c.Statements {
+		r.resolveFunc(method, IN_METHOD)
+	}
 	return nil
 }
 

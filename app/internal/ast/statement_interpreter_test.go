@@ -276,4 +276,14 @@ outer();`)
 		is.Assert().Equal(0, err)
 	})
 
+	is.Run("test methods on class", func() {
+		is.p.EXPECT().Print("Beep boop!").AnyTimes()
+		tokenizer := scanner.NewTokenizer("class Robot {\n  beep() {\n    print \"Beep boop!\";\n  }\n}\n\nvar r2d2 = Robot();\nr2d2.beep();\n\nRobot().beep();")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
+
 }

@@ -101,7 +101,12 @@ func (i *Interpreter) VisitGetExpr(ge *parse.GetExpr) any {
 
 func (i *Interpreter) VisitClassStatement(c *parse.ClassStatement) any {
 	i.e.Put(c.Name.Lexeme, nil)
-	cl := newClass(c.Name.Lexeme)
+
+	var methods = make(map[string]Callable)
+	for _, method := range c.Statements {
+		methods[method.Name.Lexeme] = newFunction(method, i.e)
+	}
+	cl := newClass(c.Name.Lexeme, methods)
 	i.e.Assign(c.Name.Lexeme, cl)
 	return nil
 }
