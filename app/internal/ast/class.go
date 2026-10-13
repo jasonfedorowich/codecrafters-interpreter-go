@@ -8,10 +8,10 @@ import (
 
 type class struct {
 	name    string
-	methods map[string]Callable
+	methods map[string]*function
 }
 
-func newClass(name string, methods map[string]Callable) *class {
+func newClass(name string, methods map[string]*function) *class {
 	return &class{
 		name:    name,
 		methods: methods,
@@ -31,7 +31,7 @@ func (c *class) String() string {
 	return c.name
 }
 
-func (c *class) findMethod(lexeme string) Callable {
+func (c *class) findMethod(lexeme string) *function {
 	if c.methods != nil && c.methods[lexeme] != nil {
 		return c.methods[lexeme]
 	}
@@ -60,7 +60,7 @@ func (i *instance) get(name *scanner.Token) (any, error) {
 	}
 	method := i.cl.findMethod(name.Lexeme)
 	if method != nil {
-		return method, nil
+		return method.bind(i), nil
 	}
 	return nil, fmt.Errorf("Undefined property ' + %s + '.", name)
 }

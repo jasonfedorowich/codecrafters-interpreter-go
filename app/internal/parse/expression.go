@@ -97,6 +97,14 @@ func (se *SetExpr) Accept(visitor Visitor) any {
 	return visitor.VisitSetExpr(se)
 }
 
+type ThisExpr struct {
+	Keyword *scanner.Token
+}
+
+func (te *ThisExpr) Accept(visitor Visitor) any {
+	return visitor.VisitThisExpr(te)
+}
+
 type Visitor interface {
 	VisitBinaryExpr(expr *BinaryExpr) any
 	VisitLiteralExpr(expr *LiteralExpr) any
@@ -117,4 +125,5 @@ type Visitor interface {
 	VisitClassStatement(c *ClassStatement) any
 	VisitGetExpr(ge *GetExpr) any
 	VisitSetExpr(se *SetExpr) any
+	VisitThisExpr(te *ThisExpr) any
 }

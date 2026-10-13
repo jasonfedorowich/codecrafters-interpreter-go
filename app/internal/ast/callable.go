@@ -45,7 +45,7 @@ type function struct {
 	closure     *env.Env
 }
 
-func newFunction(f *parse.FuncStatement, e *env.Env) Callable {
+func newFunction(f *parse.FuncStatement, e *env.Env) *function {
 	return &function{statementFn: f,
 		closure: e}
 }
@@ -74,4 +74,10 @@ func (f *function) arity() int {
 
 func (f *function) String() string {
 	return fmt.Sprintf("<fn %s>", f.statementFn.Name.Lexeme)
+}
+
+func (f *function) bind(i *instance) any {
+	e := env.NewWrappedEnv(f.closure)
+	e.Put("this", i)
+	return newFunction(f.statementFn, e)
 }

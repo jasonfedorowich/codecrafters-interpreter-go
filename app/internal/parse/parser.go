@@ -214,7 +214,7 @@ func (p *Parser) assignment() Expr {
 			return &SetExpr{
 				Object: v.Object,
 				Name:   v.Name,
-				Value: rval,
+				Value:  rval,
 			}
 		default:
 			p.eh.Error(65, "[line %d] Invalid assignment target.", equals.Line)
@@ -437,6 +437,12 @@ func (p *Parser) primary() Expr {
 	if p.match(scanner.IDENTIFIER) {
 		return &IdentifierExpr{
 			Name: p.prev(),
+		}
+	}
+
+	if p.match(scanner.THIS) {
+		return &ThisExpr{
+			Keyword: p.prev(),
 		}
 	}
 	p.eh.Error(65, "[line %d] Unexpected token", p.peek().Line)

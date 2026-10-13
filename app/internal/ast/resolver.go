@@ -42,6 +42,11 @@ func (r *Resolver) resolveStatement(statement parse.Statement) {
 	statement.Accept(r)
 }
 
+func (r *Resolver) VisitThisExpr(te *parse.ThisExpr) any {
+	r.resolveLocal(te, te.Keyword)
+	return nil
+}
+
 func (r *Resolver) VisitSetExpr(se *parse.SetExpr) any {
 	r.resolveExpr(se.Value)
 	r.resolveExpr(se.Object)
@@ -62,9 +67,15 @@ func (r *Resolver) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 func (r *Resolver) VisitClassStatement(c *parse.ClassStatement) any {
 	r.declare(c.Name)
 	r.define(c.Name)
+
+	r.beginScope()
+	r.scopes[len(r.scopes)-1]["this"] = true
+
 	for _, method := range c.Statements {
 		r.resolveFunc(method, IN_METHOD)
 	}
+
+	r.endScope()
 	return nil
 }
 

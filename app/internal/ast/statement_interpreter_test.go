@@ -297,4 +297,15 @@ outer();`)
 		is.Assert().Equal(0, err)
 	})
 
+	is.Run("test this", func() {
+		is.p.EXPECT().Print("175").AnyTimes()
+		tokenizer := scanner.NewTokenizer("class Calculator {\n  add(a, b) {\n    return a + b + this.memory;\n  }\n}\n\nvar calc = Calculator();\ncalc.memory = 82;\nprint calc.add(92, 1);")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		is.resolver.ResolveStatements(statements)
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
+
 }

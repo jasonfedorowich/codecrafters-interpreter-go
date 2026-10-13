@@ -72,6 +72,10 @@ func (i *Interpreter) InError() bool {
 	return i.eh.InError()
 }
 
+func (i *Interpreter) VisitThisExpr(te *parse.ThisExpr) any {
+	return i.lookupVariable(te.Keyword, te)
+}
+
 func (i *Interpreter) VisitSetExpr(se *parse.SetExpr) any {
 	obj := i.evaluate(se.Object)
 	v, ok := obj.(*instance)
@@ -102,7 +106,7 @@ func (i *Interpreter) VisitGetExpr(ge *parse.GetExpr) any {
 func (i *Interpreter) VisitClassStatement(c *parse.ClassStatement) any {
 	i.e.Put(c.Name.Lexeme, nil)
 
-	var methods = make(map[string]Callable)
+	var methods = make(map[string]*function)
 	for _, method := range c.Statements {
 		methods[method.Name.Lexeme] = newFunction(method, i.e)
 	}
@@ -404,12 +408,12 @@ func (i *Interpreter) resolve(expr parse.Expr, depth int) {
 	i.locals[expr] = depth
 }
 
-func (i *Interpreter) lookupVariable(name *scanner.Token, ie *parse.IdentifierExpr) any {
-	d, ok := i.locals[ie]
+func (i *Interpreter) lookupVariable(name *scanner.Token, expr parse.Expr) any {
+	d, ok := i.locals[expr]
 	if !ok {
-		v, ok := i.globals.Get(ie.Name.Lexeme)
+		v, ok := i.globals.Get(name.Lexeme)
 		if !ok {
-			i.eh.Error(70, "Undefined variable '%s'", ie.Name.Lexeme)
+			i.eh.Error(70, "Undefined variable '%s'", name.Lexeme)
 			return nil
 		}
 		return v
