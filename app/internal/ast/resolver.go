@@ -12,11 +12,17 @@ const (
 	IN_METHOD
 )
 
+const (
+	IN_CLASS = iota
+	NO_CLASS
+)
+
 type Resolver struct {
 	i      *Interpreter
 	scopes []map[string]bool
 	eh     *error_code.ErrorHandler
 	fn     int
+	cl     int
 }
 
 func NewResolver(i *Interpreter) *Resolver {
@@ -24,6 +30,7 @@ func NewResolver(i *Interpreter) *Resolver {
 		i:  i,
 		eh: &error_code.ErrorHandler{},
 		fn: NO_FUNC,
+		cl: NO_CLASS,
 	}
 }
 
@@ -43,6 +50,10 @@ func (r *Resolver) resolveStatement(statement parse.Statement) {
 }
 
 func (r *Resolver) VisitThisExpr(te *parse.ThisExpr) any {
+	if r.cl == NO_CLASS {
+		r.eh.Error(70, "Can't use 'this' outside of a class.")
+		return nil
+	}
 	r.resolveLocal(te, te.Keyword)
 	return nil
 }
@@ -65,6 +76,9 @@ func (r *Resolver) VisitBinaryExpr(expr *parse.BinaryExpr) any {
 }
 
 func (r *Resolver) VisitClassStatement(c *parse.ClassStatement) any {
+	prev := r.cl
+	r.cl = IN_CLASS
+
 	r.declare(c.Name)
 	r.define(c.Name)
 
@@ -76,6 +90,8 @@ func (r *Resolver) VisitClassStatement(c *parse.ClassStatement) any {
 	}
 
 	r.endScope()
+
+	r.cl = prev
 	return nil
 }
 

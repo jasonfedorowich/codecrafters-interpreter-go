@@ -308,4 +308,15 @@ outer();`)
 		is.Assert().Equal(0, err)
 	})
 
+	is.Run("test invalid this", func() {
+		is.p.EXPECT().Print("175").AnyTimes()
+		tokenizer := scanner.NewTokenizer("print this;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		is.resolver.ResolveStatements(statements)
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(70, err)
+	})
+
 }
