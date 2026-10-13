@@ -51,7 +51,7 @@ func (r *Resolver) resolveStatement(statement parse.Statement) {
 
 func (r *Resolver) VisitThisExpr(te *parse.ThisExpr) any {
 	if r.cl == NO_CLASS {
-		r.eh.Error(70, "Can't use 'this' outside of a class.")
+		r.eh.Error(65, "Can't use 'this' outside of a class.")
 		return nil
 	}
 	r.resolveLocal(te, te.Keyword)
