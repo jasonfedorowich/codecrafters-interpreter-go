@@ -108,7 +108,7 @@ func (i *Interpreter) VisitClassStatement(c *parse.ClassStatement) any {
 
 	var methods = make(map[string]*function)
 	for _, method := range c.Statements {
-		methods[method.Name.Lexeme] = newFunction(method, i.e)
+		methods[method.Name.Lexeme] = newFunction(method, i.e, method.Name.Lexeme == "init")
 	}
 	cl := newClass(c.Name.Lexeme, methods)
 	i.e.Assign(c.Name.Lexeme, cl)
@@ -116,7 +116,7 @@ func (i *Interpreter) VisitClassStatement(c *parse.ClassStatement) any {
 }
 
 func (i *Interpreter) VisitFuncStatement(f *parse.FuncStatement) any {
-	i.e.Put(f.Name.Lexeme, newFunction(f, i.e))
+	i.e.Put(f.Name.Lexeme, newFunction(f, i.e, false))
 	return nil
 }
 func (i *Interpreter) VisitReturnStmt(r *parse.ReturnStmt) any {

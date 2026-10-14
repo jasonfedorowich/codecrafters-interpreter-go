@@ -43,9 +43,10 @@ func loadNativeFunctions() map[string]any {
 type function struct {
 	statementFn *parse.FuncStatement
 	closure     *env.Env
+	inInit      bool
 }
 
-func newFunction(f *parse.FuncStatement, e *env.Env) *function {
+func newFunction(f *parse.FuncStatement, e *env.Env, inInit bool) *function {
 	return &function{statementFn: f,
 		closure: e}
 }
@@ -54,6 +55,10 @@ func (f *function) call(interpreter *Interpreter, args []any) (r any) {
 	defer func() {
 		if e := recover(); e != nil {
 			if v, ok := e.(*returnValue); ok {
+				if f.inInit {
+					r = f.closure.GetAt(0, "this")
+					return
+				}
 				r = v.v
 				return
 			}
@@ -65,7 +70,10 @@ func (f *function) call(interpreter *Interpreter, args []any) (r any) {
 		e.Put(f.statementFn.Params[i].Lexeme, a)
 	}
 	interpreter.blockStatement(f.statementFn.Body, e)
-	return nil
+	if !f.inInit {
+		return f.closure.GetAt(0, "this")
+	}
+	return
 }
 
 func (f *function) arity() int {
@@ -76,8 +84,8 @@ func (f *function) String() string {
 	return fmt.Sprintf("<fn %s>", f.statementFn.Name.Lexeme)
 }
 
-func (f *function) bind(i *instance) any {
+func (f *function) bind(i *instance) *function {
 	e := env.NewWrappedEnv(f.closure)
 	e.Put("this", i)
-	return newFunction(f.statementFn, e)
+	return newFunction(f.statementFn, e, f.inInit)
 }

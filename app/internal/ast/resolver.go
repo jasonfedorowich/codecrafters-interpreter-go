@@ -9,6 +9,7 @@ import (
 const (
 	IN_FUNC = iota
 	NO_FUNC
+	INITIALIZER
 	IN_METHOD
 )
 
@@ -86,7 +87,11 @@ func (r *Resolver) VisitClassStatement(c *parse.ClassStatement) any {
 	r.scopes[len(r.scopes)-1]["this"] = true
 
 	for _, method := range c.Statements {
-		r.resolveFunc(method, IN_METHOD)
+		var declaration = IN_METHOD
+		if method.Name.Lexeme == "init" {
+			declaration = INITIALIZER
+		}
+		r.resolveFunc(method, declaration)
 	}
 
 	r.endScope()
@@ -194,6 +199,10 @@ func (r *Resolver) VisitReturnStmt(re *parse.ReturnStmt) any {
 		return nil
 	}
 	if re.E != nil {
+		if r.fn == INITIALIZER {
+			r.eh.Error(65, "Cannot return a value from an initializer.")
+			return nil
+		}
 		r.resolveExpr(re.E)
 	}
 	return nil

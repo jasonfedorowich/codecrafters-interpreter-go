@@ -319,4 +319,15 @@ outer();`)
 		is.Assert().Equal(70, err)
 	})
 
+	is.Run("test initializer this", func() {
+		is.p.EXPECT().Print("R2-D2").AnyTimes()
+		tokenizer := scanner.NewTokenizer("class Robot {\n  init(model, function) {\n    this.model = model;\n    this.function = function;\n  }\n}\nprint Robot(\"R2-D2\", \"Astromech\").model;")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		is.resolver.ResolveStatements(statements)
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
+
 }

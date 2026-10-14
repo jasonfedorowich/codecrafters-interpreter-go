@@ -20,11 +20,19 @@ func newClass(name string, methods map[string]*function) *class {
 
 func (c *class) call(inter *Interpreter, args []any) any {
 	ins := newInstance(c)
+	initializer := c.findMethod("init")
+	if initializer != nil {
+		initializer.bind(ins).call(inter, args)
+	}
 	return ins
 }
 
 func (c *class) arity() int {
-	return 0
+	initializer := c.findMethod("init")
+	if initializer == nil {
+		return 0
+	}
+	return initializer.arity()
 }
 
 func (c *class) String() string {
