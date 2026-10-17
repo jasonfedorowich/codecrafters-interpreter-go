@@ -94,7 +94,7 @@ func (i *Interpreter) VisitSuperExpr(se *parse.SuperExpr) any {
 		return nil
 	}
 	method := superClass.findMethod(se.Method.Lexeme)
-	if method != nil {
+	if method == nil {
 		i.eh.Error(70, "Only instances have methods.")
 		return nil
 	}

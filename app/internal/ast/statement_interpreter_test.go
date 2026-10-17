@@ -343,4 +343,16 @@ outer();`)
 		is.Assert().Equal(0, err)
 	})
 
+	is.Run("test super keyword", func() {
+		is.p.EXPECT().Print("Fry until golden brown.").AnyTimes()
+		tokenizer := scanner.NewTokenizer("class Doughnut {\n  cook() {\n    print \"Fry until golden brown.\";\n  }\n}\n\n// Super can be used to call the overridden method\n// of the parent class\nclass BostonCream < Doughnut {\n  cook() {\n    super.cook();\n  }\n}\n\nBostonCream().cook();")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		err := is.resolver.ResolveStatements(statements)
+		is.Assert().Equal(0, err)
+		err = is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
+
 }
