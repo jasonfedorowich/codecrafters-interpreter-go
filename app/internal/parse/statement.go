@@ -79,6 +79,7 @@ func (r *ReturnStmt) Accept(visitor Visitor) any {
 type ClassStatement struct {
 	Name       *scanner.Token
 	Statements []*FuncStatement
+	SuperClass *IdentifierExpr
 }
 
 func (c *ClassStatement) Accept(visitor Visitor) any {

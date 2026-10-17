@@ -7,14 +7,16 @@ import (
 )
 
 type class struct {
-	name    string
-	methods map[string]*function
+	name       string
+	methods    map[string]*function
+	superClass *class
 }
 
-func newClass(name string, methods map[string]*function) *class {
+func newClass(name string, methods map[string]*function, superClass *class) *class {
 	return &class{
-		name:    name,
-		methods: methods,
+		name:       name,
+		methods:    methods,
+		superClass: superClass,
 	}
 }
 
@@ -42,6 +44,9 @@ func (c *class) String() string {
 func (c *class) findMethod(lexeme string) *function {
 	if c.methods != nil && c.methods[lexeme] != nil {
 		return c.methods[lexeme]
+	}
+	if c.superClass != nil {
+		return c.superClass.findMethod(lexeme)
 	}
 	return nil
 }

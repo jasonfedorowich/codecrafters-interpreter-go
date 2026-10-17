@@ -8,7 +8,7 @@ import (
 
 type Env struct {
 	values map[string]any
-	e      *Env
+	Outer  *Env
 }
 
 func NewEnv(nativeFunctions map[string]any) *Env {
@@ -24,7 +24,7 @@ func NewEnv(nativeFunctions map[string]any) *Env {
 func NewWrappedEnv(e *Env) *Env {
 	return &Env{
 		values: make(map[string]any),
-		e:      e,
+		Outer:  e,
 	}
 }
 
@@ -38,8 +38,8 @@ func (e *Env) Assign(key string, value any) error {
 		e.values[key] = value
 		return nil
 	}
-	if e.e != nil {
-		return e.e.Assign(key, value)
+	if e.Outer != nil {
+		return e.Outer.Assign(key, value)
 	}
 	return fmt.Errorf("key does not exist: %s", key)
 }
@@ -54,8 +54,8 @@ func (e *Env) Get(key string) (any, bool) {
 		v, ok := e.values[key]
 		return v, ok
 	}
-	if e.e != nil {
-		return e.e.Get(key)
+	if e.Outer != nil {
+		return e.Outer.Get(key)
 	}
 	return nil, false
 }
@@ -75,7 +75,7 @@ func (e *Env) AssignAt(d int, name *scanner.Token, value any) {
 func (e *Env) ancestor(d int) *Env {
 	env := e
 	for i := 0; i < d; i++ {
-		env = env.e
+		env = env.Outer
 	}
 	return env
 }

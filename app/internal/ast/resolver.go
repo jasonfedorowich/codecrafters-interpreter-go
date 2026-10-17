@@ -16,6 +16,7 @@ const (
 const (
 	IN_CLASS = iota
 	NO_CLASS
+	SUBCLASS
 )
 
 type Resolver struct {
@@ -48,6 +49,18 @@ func (r *Resolver) resolveExpr(expr parse.Expr) {
 
 func (r *Resolver) resolveStatement(statement parse.Statement) {
 	statement.Accept(r)
+}
+
+func (r *Resolver) VisitSuperExpr(sc *parse.SuperExpr) any {
+	if r.cl == NO_CLASS {
+		r.eh.Error(65, "Can't use 'super' outside of a class.")
+		return nil
+	} else if r.cl != SUBCLASS {
+		r.eh.Error(65, "Can't use 'super' in a class with no superclass.")
+		return nil
+	}
+	r.resolveLocal(sc, sc.Keyword)
+	return nil
 }
 
 func (r *Resolver) VisitThisExpr(te *parse.ThisExpr) any {
@@ -83,6 +96,21 @@ func (r *Resolver) VisitClassStatement(c *parse.ClassStatement) any {
 	r.declare(c.Name)
 	r.define(c.Name)
 
+	if c.SuperClass != nil && c.SuperClass.Name.Lexeme == c.Name.Lexeme {
+		r.eh.Error(65, "A class can't inherit from itself.")
+		return nil
+	}
+
+	if c.SuperClass != nil {
+		r.cl = SUBCLASS
+		r.resolveExpr(c.SuperClass)
+	}
+
+	if c.SuperClass != nil {
+		r.beginScope()
+		r.scopes[len(r.scopes)-1]["super"] = true
+	}
+
 	r.beginScope()
 	r.scopes[len(r.scopes)-1]["this"] = true
 
@@ -95,6 +123,10 @@ func (r *Resolver) VisitClassStatement(c *parse.ClassStatement) any {
 	}
 
 	r.endScope()
+
+	if c.SuperClass != nil {
+		r.endScope()
+	}
 
 	r.cl = prev
 	return nil

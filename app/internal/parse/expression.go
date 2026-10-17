@@ -105,6 +105,15 @@ func (te *ThisExpr) Accept(visitor Visitor) any {
 	return visitor.VisitThisExpr(te)
 }
 
+type SuperExpr struct {
+	Keyword *scanner.Token
+	Method  *scanner.Token
+}
+
+func (se *SuperExpr) Accept(visitor Visitor) any {
+	return visitor.VisitSuperExpr(se)
+}
+
 type Visitor interface {
 	VisitBinaryExpr(expr *BinaryExpr) any
 	VisitLiteralExpr(expr *LiteralExpr) any
@@ -126,4 +135,5 @@ type Visitor interface {
 	VisitGetExpr(ge *GetExpr) any
 	VisitSetExpr(se *SetExpr) any
 	VisitThisExpr(te *ThisExpr) any
+	VisitSuperExpr(se *SuperExpr) any
 }

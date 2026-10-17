@@ -397,6 +397,47 @@ func (p *Parser) finishCall(e Expr) Expr {
 	}
 }
 
+func (p *Parser) returnStatement() Statement {
+	var e Expr
+	if !p.check(scanner.SEMICOLON) {
+		e = p.expression()
+	}
+	p.consume(scanner.SEMICOLON, "Expect ';' after return value")
+	return &ReturnStmt{
+		E: e,
+	}
+}
+
+func (p *Parser) blockStatement() Statement {
+	return &BlockStatement{
+		Statements: p.block(),
+	}
+}
+
+func (p *Parser) classDeclaration() Statement {
+	name := p.consume(scanner.IDENTIFIER, "Expect class name.")
+
+	var superClass *IdentifierExpr
+	if p.match(scanner.LESS) {
+		p.consume(scanner.IDENTIFIER, "Expect superclass name.")
+		superClass = &IdentifierExpr{
+			Name: p.prev(),
+		}
+	}
+
+	p.consume(scanner.LEFT_BRACE, "Expect '{' before class body.")
+	var statements []*FuncStatement
+	for !p.isAtEnd() && !p.check(scanner.RIGHT_BRACE) {
+		statements = append(statements, p.funcDeclaration("method"))
+	}
+	p.consume(scanner.RIGHT_BRACE, "Expect '}' after class body.")
+	return &ClassStatement{
+		Name:       name,
+		Statements: statements,
+		SuperClass: superClass,
+	}
+}
+
 func (p *Parser) primary() Expr {
 	if p.match(scanner.NIL) {
 		return &LiteralExpr{
@@ -445,6 +486,15 @@ func (p *Parser) primary() Expr {
 			Keyword: p.prev(),
 		}
 	}
+	if p.match(scanner.SUPER) {
+		prev := p.prev()
+		p.consume(scanner.DOT, "Expect '.' after 'super'.")
+		method := p.consume(scanner.IDENTIFIER, "Expect superclass method name.")
+		return &SuperExpr{
+			Keyword: prev,
+			Method:  method,
+		}
+	}
 	p.eh.Error(65, "[line %d] Unexpected token", p.peek().Line)
 	return nil
 }
@@ -490,35 +540,4 @@ func (p *Parser) consume(tokenType scanner.TokenType, errorMessage string) *scan
 	}
 	p.eh.Error(65, "[line %d] %s", p.peek().Line, errorMessage)
 	return nil
-}
-
-func (p *Parser) returnStatement() Statement {
-	var e Expr
-	if !p.check(scanner.SEMICOLON) {
-		e = p.expression()
-	}
-	p.consume(scanner.SEMICOLON, "Expect ';' after return value")
-	return &ReturnStmt{
-		E: e,
-	}
-}
-
-func (p *Parser) blockStatement() Statement {
-	return &BlockStatement{
-		Statements: p.block(),
-	}
-}
-
-func (p *Parser) classDeclaration() Statement {
-	name := p.consume(scanner.IDENTIFIER, "Expect class name.")
-	p.consume(scanner.LEFT_BRACE, "Expect '{' before class body.")
-	var statements []*FuncStatement
-	for !p.isAtEnd() && !p.check(scanner.RIGHT_BRACE) {
-		statements = append(statements, p.funcDeclaration("method"))
-	}
-	p.consume(scanner.RIGHT_BRACE, "Expect '}' after class body.")
-	return &ClassStatement{
-		Name:       name,
-		Statements: statements,
-	}
 }

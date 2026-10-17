@@ -76,6 +76,31 @@ func (i *Interpreter) VisitThisExpr(te *parse.ThisExpr) any {
 	return i.lookupVariable(te.Keyword, te)
 }
 
+func (i *Interpreter) VisitSuperExpr(se *parse.SuperExpr) any {
+	d := i.locals[se]
+	sc := i.e.GetAt(d, "super")
+	var superClass *class
+	var ok bool
+	superClass, ok = sc.(*class)
+	if !ok {
+		i.eh.Error(70, "Only classes have a superclass.")
+		return nil
+	}
+	o := i.e.GetAt(d-1, "this")
+	var object *instance
+	object, ok = o.(*instance)
+	if !ok {
+		i.eh.Error(70, "Only instances have properties.")
+		return nil
+	}
+	method := superClass.findMethod(se.Method.Lexeme)
+	if method != nil {
+		i.eh.Error(70, "Only instances have methods.")
+		return nil
+	}
+	return method.bind(object)
+}
+
 func (i *Interpreter) VisitSetExpr(se *parse.SetExpr) any {
 	obj := i.evaluate(se.Object)
 	v, ok := obj.(*instance)
@@ -104,13 +129,34 @@ func (i *Interpreter) VisitGetExpr(ge *parse.GetExpr) any {
 }
 
 func (i *Interpreter) VisitClassStatement(c *parse.ClassStatement) any {
+	var superClass *class
+	if c.SuperClass != nil {
+		sc := i.evaluate(c.SuperClass)
+		var ok bool
+		superClass, ok = sc.(*class)
+		if !ok {
+			i.eh.Error(70, "Superclass must be a class.")
+			return nil
+		}
+
+	}
+
 	i.e.Put(c.Name.Lexeme, nil)
+
+	if c.SuperClass != nil {
+		i.e = env.NewWrappedEnv(i.e)
+		i.e.Put("super", superClass)
+	}
 
 	var methods = make(map[string]*function)
 	for _, method := range c.Statements {
 		methods[method.Name.Lexeme] = newFunction(method, i.e, method.Name.Lexeme == "init")
 	}
-	cl := newClass(c.Name.Lexeme, methods)
+	cl := newClass(c.Name.Lexeme, methods, superClass)
+
+	if superClass != nil {
+		i.e = i.e.Outer
+	}
 	i.e.Assign(c.Name.Lexeme, cl)
 	return nil
 }

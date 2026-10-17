@@ -330,4 +330,17 @@ outer();`)
 		is.Assert().Equal(0, err)
 	})
 
+	is.Run("test superclass", func() {
+		is.p.EXPECT().Print("A instance").AnyTimes()
+		is.p.EXPECT().Print("B instance").AnyTimes()
+		is.p.EXPECT().Print("C instance").AnyTimes()
+		tokenizer := scanner.NewTokenizer("{\n  class A {}\n\n  // B is a subclass of A\n  class B < A {}\n\n  // C is also a subclass of A\n  class C < A {}\n\n  print A();\n  print B();\n  print C();\n}")
+		tokens, _ := tokenizer.Tokenize()
+		parser := parse.NewParser(tokens, false)
+		statements, _ := parser.Parse()
+		is.resolver.ResolveStatements(statements)
+		err := is.interpreter.InterpretStatements(statements)
+		is.Assert().Equal(0, err)
+	})
+
 }
